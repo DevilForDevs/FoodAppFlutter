@@ -1,0 +1,205 @@
+import 'dart:convert';
+import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:http/http.dart' as http;
+
+// Shared domain variable
+const String domain = 'https://jalebi.shop';
+
+/// Sends a login POST request and returns the raw JSON string response (or null on failure)
+Future<String> login(String email, String password) async {
+  final url = Uri.parse('$domain/api/login');
+
+  final headers = {'Content-Type': 'application/json'};
+
+  final body = jsonEncode({'email': email, 'password': password});
+
+  final response = await http.post(url, headers: headers, body: body);
+  return response.body;
+}
+
+Future<bool> checkConnectivity() async {
+  final ConnectivityResult result = await Connectivity().checkConnectivity();
+
+  switch (result) {
+    case ConnectivityResult.mobile:
+    case ConnectivityResult.wifi:
+    case ConnectivityResult.ethernet:
+      return true;
+
+    case ConnectivityResult.none:
+    default:
+      return false;
+  }
+}
+
+Future<Map<String, dynamic>> registerUser(
+  String name,
+  String email,
+  String password,
+  String accountType,
+) async {
+  final url = Uri.parse('$domain/api/signup');
+
+  final body = jsonEncode({
+    "email": email,
+    "password": password,
+    "name": name,
+    "account_type": accountType,
+  });
+
+  try {
+    final response = await http.post(
+      url,
+      headers: {"Content-Type": "application/json"},
+      body: body,
+    );
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      return jsonDecode(response.body);
+    } else {
+      return {
+        "error": "Server responded with status: ${response.statusCode}",
+        "body": jsonDecode(response.body),
+      };
+    }
+  } catch (e) {
+    return {"error": "Exception occurred", "message": e.toString()};
+  }
+}
+
+Future<Map<String, dynamic>> sendOtp(String userEmail, String userType) async {
+  final url = Uri.parse('$domain/api/sendOtp');
+
+  try {
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'email': userEmail, 'user_type': userType}),
+    );
+    return jsonDecode(response.body);
+  } catch (e) {
+    return {'error': 'Exception occurred', 'message': e.toString()};
+  }
+}
+
+Future<String> changePassword(String email, String newPassword) async {
+  final String url = '$domain/api/changePassword';
+  try {
+    final response = await http.post(
+      Uri.parse(url),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'email': email, 'new_password': newPassword}),
+    );
+
+    return response.body;
+  } catch (e) {
+    return 'error message: ${e.toString()}';
+  }
+}
+
+Future<Map<String, dynamic>> getAddress(String userId, String token) async {
+  final url = Uri.parse('$domain/api/getAddress');
+
+  try {
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode({'user_id': userId}),
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      return {
+        'error': 'Server responded with status: ${response.statusCode}',
+        'body': jsonDecode(response.body),
+      };
+    }
+  } catch (e) {
+    return {'error message': e.toString()};
+  }
+}
+
+Future<String> updateAvatar(
+  String userId,
+  String avatarUrl,
+  String token,
+) async {
+  final url = Uri.parse('$domain/api/updateAvatar');
+  try {
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode({'user_id': userId, 'avatar': avatarUrl}),
+    );
+    return response.body;
+  } catch (e) {
+    return jsonEncode({"error message": e.toString()});
+  }
+}
+
+Future<String> updateAddress(
+  String addressId,
+  String longAddress,
+  String city,
+  String pinCode,
+  String village,
+  String addressType,
+  String token,
+) async {
+  final url = Uri.parse('$domain/api/updateAddress');
+  try {
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode({
+        'address_id': addressId,
+        'longAddress': longAddress,
+        "city": city,
+        "village": village,
+        "pincode": pinCode,
+        "addressType": addressType,
+      }),
+    );
+    return response.body;
+  } catch (e) {
+    return jsonEncode({"error message": e.toString()});
+  }
+}
+
+Future<Object> getRestrictedItems(String userId, String token) async {
+  final url = Uri.parse('$domain/api/getRestrictedItems');
+
+  try {
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode({'user_id': userId}),
+    );
+
+    final decoded = jsonDecode(response.body);
+
+    if (decoded is List) {
+      return decoded; // List of items
+    } else if (decoded is Map) {
+      return decoded; // Possibly an error or object
+    } else {
+      return {'error_message': 'Unexpected response type'};
+    }
+  } catch (e) {
+    return {'error_message': e.toString()};
+  }
+}
+
