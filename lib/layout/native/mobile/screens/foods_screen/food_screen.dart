@@ -4,7 +4,6 @@ import 'package:jalebi_shop_flutter/comman/sys_utilities.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/all_items_screen/all_item.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/foods_screen/controllers/food_screen_controller.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/foods_screen/widgets/custom_shop_app_bar.dart';
-import 'package:jalebi_shop_flutter/layout/native/mobile/screens/foods_screen/widgets/food_screen_categories.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/search_screen/search_screen.dart';
 
 import '../../../../../comman/food_screen_drawer.dart';
@@ -55,40 +54,6 @@ class FoodScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              SizedBox(height: 12),
-              Row(
-                children: [
-                  Text(
-                    "All Categories",
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontFamily: "Poppins",
-                      fontWeight: FontWeight.w400,
-                    ),
-                  ),
-                  Spacer(),
-                  Text(
-                    "See All",
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontFamily: "Poppins",
-                      fontWeight: FontWeight.w400,
-                      color: isDark ? Colors.white : Color(0xFF333333),
-                    ),
-                  ),
-                  IconButton(
-                    onPressed: () {},
-                    icon: Icon(
-                      Icons.arrow_forward_ios_sharp,
-                      size: 18,
-                      color: isDark ? Colors.white : Color(0xFFA0A5BA),
-                    ),
-                  )
-                ],
-              ),
-              SizedBox(height: 12),
-              CategoryItem(controller: controller, isDark: isDark),
-              SizedBox(height: 12),
               Row(
                 children: [
                   Text(
@@ -110,7 +75,7 @@ class FoodScreen extends StatelessWidget {
                     ),
                   ),
                   IconButton(
-                    onPressed: () => Get.to(AllItem()),
+                    onPressed: () => Get.to(AllItem(controller: controller,)),
                     icon: Icon(
                       Icons.arrow_forward_ios_sharp,
                       size: 18,
@@ -141,6 +106,13 @@ class FoodScreen extends StatelessWidget {
     );
   }
 }
+
+
+
+
+
+
+
 
 
 

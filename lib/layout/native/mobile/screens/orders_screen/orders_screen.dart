@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:jalebi_shop_flutter/comman/sys_utilities.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/commans/custom_app_bar.dart';
-import 'package:jalebi_shop_flutter/layout/native/mobile/screens/commans/custom_button.dart';
+import 'package:jalebi_shop_flutter/layout/native/mobile/screens/orders_screen/order_screen_controller.dart';
 
 class OrdersScreen extends StatelessWidget {
   const OrdersScreen({super.key});
@@ -9,6 +10,7 @@ class OrdersScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark=isDarkMode(context);
+    final controller=Get.put(OrderScreenController());
     return SafeArea(
       child: DefaultTabController(
         length: 2,
@@ -37,8 +39,9 @@ class OrdersScreen extends StatelessWidget {
                 child: TabBarView(
                   children: [
                     ListView.builder(
-                      itemCount:8,
+                      itemCount:controller.orders.length,
                         itemBuilder: (context,index){
+                          final orderItem=controller.orders[index];
                           return Padding(
                             padding: EdgeInsets.symmetric(horizontal: 12),
                             child: Column(

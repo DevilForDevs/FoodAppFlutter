@@ -19,7 +19,7 @@ class PrimaryItemCard extends StatelessWidget {
     final isDark = isDarkMode(context);
 
     return GestureDetector(
-      onTap: () => Get.to(FoodDetailScreen()),
+      onTap: () => Get.to(FoodDetailScreen(food: productModel,)),
       child: SizedBox(
         height: 50, // increased height to prevent overflow
         width: 50,

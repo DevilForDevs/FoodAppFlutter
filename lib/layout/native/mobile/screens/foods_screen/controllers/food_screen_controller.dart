@@ -8,6 +8,8 @@ import 'package:jalebi_shop_flutter/layout/native/mobile/screens/product_model.d
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/profile_controller.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../commans/database.dart';
+
 class FoodScreenController extends GetxController {
   var categorySelectItem = 0.obs;
   final TextEditingController searchTextController = TextEditingController();
@@ -26,42 +28,57 @@ class FoodScreenController extends GetxController {
   Future<void> setUpProfile() async {
     final prefs = await SharedPreferences.getInstance();
     final credentials = prefs.getString('credentials');
+
     if (credentials != null) {
       final decodedJson = jsonDecode(credentials);
       userId = decodedJson["user"]["id"].toString();
-      accountType=decodedJson["user"]["account_type"];
+      accountType = decodedJson["user"]["account_type"];
       token = decodedJson["token"];
 
       subController.name.value = decodedJson["user"]["name"];
 
-      // Use a user-specific cache key
-      final cacheKey = 'cached_address_$userId';
+      // ✅ Try to load from local DB
+      List<AddressModel> addresses = await DatabaseHelper.getAllAddresses();
 
-      String? cachedAddressJson = prefs.getString(cacheKey);
-      Map<String, dynamic> address;
+      if (addresses.isEmpty) {
+        // ❌ No address in DB — fetch from API
+        print("No local addresses, fetching from API...");
 
-      if (cachedAddressJson != null) {
-        address = jsonDecode(cachedAddressJson);
-        print('Loaded address from cache for user $userId.');
+        final addressJson = await getAddress(userId, token);
+        final addressList = addressJson["addresses"] as List;
+
+        for (var addr in addressList) {
+          final addressModel = AddressModel.fromJson(addr);
+          await DatabaseHelper.insertAddress(addressModel);
+        }
+
+        addresses = await DatabaseHelper.getAllAddresses(); // Reload after inserting
       } else {
-        address = await getAddress(userId, token);
-        await prefs.setString(cacheKey, jsonEncode(address));
-        print('Fetched address from API and cached for user $userId.');
+        print("Loaded ${addresses.length} address(es) from local database.");
       }
 
-      final addresses = address["addresses"] as List;
-      final lastAddress = addresses.isNotEmpty ? addresses.last : null;
-      subController.addresModel=AddressModel.fromJson(lastAddress);
+      // ✅ Use last address
+      if (addresses.isNotEmpty) {
+        subController.addresModel = addresses.last;
+      }
     } else {
       print('No credentials found.');
     }
   }
 
+
   Future<void> loadItems() async {
     final result=await getRestrictedItems(userId, token);
     if (result is List) {
       for (var item in result) {
-        products.add(ProductModel(name: item["name"], thumbnail: item["image_url"], price: item["price"], isFavourite: false, about:item["description"],unit: item["unit"]));
+        ProductModel? itemsInDbList = await DatabaseHelper.getItemById(item["id"]);
+        if (itemsInDbList != null) {
+          products.add(itemsInDbList);
+        } else {
+          final mProduct=ProductModel(name: item["name"], thumbnail: item["image_url"], price: item["price"], isFavourite: false, about:item["description"],unit: item["unit"],item_id: item["id"]);
+          final itemsInserted=DatabaseHelper.insertProduct(mProduct);
+          products.add(mProduct);
+        }
       }
     } else if (result is Map && result.containsKey('error_message')) {
       print("Error: ${result['error_message']}");

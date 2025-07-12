@@ -203,3 +203,71 @@ Future<Object> getRestrictedItems(String userId, String token) async {
   }
 }
 
+
+Future<String> addOrder(
+    String token,
+    String userId,
+    String addressId,
+    String itemId,
+    String contact,
+    int quantity,
+    int price,
+    String method,
+    {String status = "confirmed"} // default status
+    ) async {
+  final url = Uri.parse('$domain/api/addOrder');
+
+  try {
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode({
+        'user_id': userId,
+        'address': addressId,
+        'item': itemId,
+        'contact': contact,
+        'quantity': quantity,
+        'price': price,
+        'method': method,
+        'status': status,
+      }),
+    );
+    return response.body;
+
+  } catch (e) {
+   return('error message: $e');
+  }
+}
+
+Future<Object> getOrders(String token) async {
+  final url = Uri.parse('$domain/api/getOrders');
+
+  try {
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode({
+
+      }),
+    );
+
+    final decoded = jsonDecode(response.body);
+
+    if (decoded is List) {
+      return decoded; // List of items
+    } else if (decoded is Map) {
+      return decoded; // Possibly an error or object
+    } else {
+      return {'error_message': 'Unexpected response type'};
+    }
+  } catch (e) {
+    return {'error_message': e.toString()};
+  }
+}
+

@@ -5,6 +5,7 @@ class ProductModel {
   final bool isFavourite;
   final String about;
   final String unit;
+  final int item_id;
 
   ProductModel({
     required this.name,
@@ -12,7 +13,8 @@ class ProductModel {
     required this.price,
     required this.isFavourite,
     required this.about,
-    required this.unit
+    required this.unit,
+    required this.item_id
   });
 
   factory ProductModel.fromJson(Map<String, dynamic> json) {
@@ -23,16 +25,19 @@ class ProductModel {
       isFavourite: json['isFavourite'] ?? false,
       about: json['about'] ?? '',
       unit: json["unit"]??"pcs",
+      item_id: json["id"]
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
+      'id': item_id,
       'name': name,
       'thumbnail': thumbnail,
       'price': price,
-      'isFavourite': isFavourite,
+      'isFavourite': isFavourite ? 1 : 0, // ✅ Convert bool to int
       'about': about,
+      'unit': unit,
     };
   }
 }

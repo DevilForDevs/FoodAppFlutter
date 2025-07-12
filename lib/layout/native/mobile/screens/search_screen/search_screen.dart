@@ -68,47 +68,6 @@ class SearchScreen extends StatelessWidget {
                 )),
               ),
               SizedBox(height: 12,),
-              Text(
-                "Recent Keywords",
-                style: TextStyle(
-                  color: isDark?Colors.white:Color(0xFF32343E),
-                  fontSize: 20,
-                  fontWeight: FontWeight.w400
-
-                ),
-              ),
-              SizedBox(height: 12,),
-              SizedBox(
-                height: 48, // height for the capsule items
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: fastFoods.length,
-                  itemBuilder: (context, index) {
-                    return Container(
-                      margin: index!=0? EdgeInsets.only(left: 8):EdgeInsets.zero,
-                      padding: EdgeInsets.symmetric(horizontal: 16),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(24),
-                        border: Border.all(
-                          color:Color(0xFFEDEDED), // Light grey border
-                          width: 2,
-                        ),
-                        color: isDark?Color(0xFF303030):Color(0xFF212121),
-                      ),
-                      alignment: Alignment.center,
-                      child: Text(
-                        fastFoods[index],
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontFamily: "Poppins",
-                          fontWeight: FontWeight.w400,
-                          color: isDark?Colors.white:Color(0xFF403F3E),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
               Expanded( // or wrap in SizedBox if not using in Column
                 child: Obx(()=>ListView.builder(
                     itemCount: controller.products.length,

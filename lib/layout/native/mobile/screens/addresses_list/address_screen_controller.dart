@@ -1,7 +1,11 @@
 import 'dart:convert';
 
+import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/address_screen/address_screen.dart';
+import 'package:jalebi_shop_flutter/layout/native/mobile/screens/commans/database.dart';
+import 'package:jalebi_shop_flutter/layout/native/mobile/screens/product_model.dart';
+import 'package:jalebi_shop_flutter/layout/native/mobile/screens/sucess_screen/sucess_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../../comman/networkings.dart';
@@ -13,6 +17,8 @@ class AddressScreenController extends GetxController {
   var addressList = <AddressModel>[].obs;
   var token="".obs;
   var userId="".obs;
+  var selectedAddressIndex=0.obs;
+  final phone=TextEditingController();
 
   @override
   void onInit() {
@@ -66,5 +72,13 @@ class AddressScreenController extends GetxController {
   void editAddress(int index){
     Get.to(AddressScreen(addressModel: addressList[index]));
 
+  }
+  Future<void> placeOrder(ProductModel product,int quantity,String paymentMethod) async {
+    final response= await addOrder(token.value, userId.value, addressList[selectedAddressIndex.value].addressId.value.toString(), product.item_id.toString(), phone.text, quantity, product.price, "cod");
+    if(response.contains("successfully")){
+      final inserted1=await DatabaseHelper.insertProduct(product);
+      final inserted=await DatabaseHelper.insertOrderItem(userId: userId.value, address: "address", itemId: product.item_id, phone: phone.text, quantity: quantity, price: product.price, method: "cod", status: "pending", createdAt: "today");
+      Get.off(() => SucessScreen());
+    }
   }
 }
