@@ -4,8 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jalebi_shop_flutter/comman/sys_utilities.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/cart_screen/cart_screen.dart';
+import 'package:jalebi_shop_flutter/layout/native/mobile/screens/commans/cart_button_controller.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/commans/custom_app_bar.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/commans/custom_button.dart';
+import 'package:jalebi_shop_flutter/layout/native/mobile/screens/commans/database.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/place_order_screen/place_order_screen.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/product_detail_screen/detail_screen_controller.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/product_model.dart';
@@ -19,6 +21,7 @@ class FoodDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = isDarkMode(context);
     final controller = Get.put(DetailScreenController());
+    final cartbtn=Get.find<CartButtonController>();
     return SafeArea(
       child: Scaffold(
         appBar: CustomAppBar(title: "Details"),
@@ -193,12 +196,7 @@ class FoodDetailScreen extends StatelessWidget {
                 child: CustomActionButton(
                   label: "Add to cart",
                   onPressed: () async {
-                    final msg = await addToCart(
-                      productId: 1,
-                      price: food.price.toDouble(),
-                      quantity: controller.quantity.value,
-                    );
-
+                    final msg=CartDatabase.insertOrUpdateCartItem(id: food.item_id, name: food.name, image: food.thumbnail, price: food.price.toDouble(), quantity: controller.quantity.value);
                     // Show snackbar confirmation
                     Get.snackbar(
                       "Cart",
@@ -210,7 +208,7 @@ class FoodDetailScreen extends StatelessWidget {
                     );
 
                     // Show dialog asking if user wants to go to cart
-                    Future.delayed(Duration(milliseconds: 300), () {
+                    Future.delayed(Duration(milliseconds: 200), () {
                       Get.defaultDialog(
                         title: "Go to Cart?",
                         middleText: "Would you like to view your cart now?",
@@ -221,7 +219,7 @@ class FoodDetailScreen extends StatelessWidget {
                           Get.to(CartScreen());
                         },
                         onCancel: () {
-                          // just close the dialog
+
                         },
                       );
                     });

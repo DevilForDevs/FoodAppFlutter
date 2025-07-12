@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jalebi_shop_flutter/comman/sys_utilities.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/commans/custom_app_bar.dart';
+import 'package:jalebi_shop_flutter/layout/native/mobile/screens/profile_controller.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/search_screen/search_screen_controller.dart';
 
 import '../commans/top_bar_cart_btn.dart';
 class SearchScreen extends StatelessWidget {
-  const SearchScreen({super.key});
+  const SearchScreen({super.key, required this.subController});
+  final ProfileController subController;
 
   @override
   Widget build(BuildContext context) {

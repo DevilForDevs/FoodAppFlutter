@@ -8,6 +8,10 @@ class OrderModel {
   final String method;
   final String status;
   final String? createdAt;
+  final String image_url;
+  final String name;
+  final int orderId;
+  final String unit;
 
   OrderModel({
     required this.userId,
@@ -19,6 +23,12 @@ class OrderModel {
     required this.method,
     required this.status,
     this.createdAt,
+    required this.image_url,
+    required this.name,
+    required this.orderId,
+    required this.unit
+
+
   });
 
   factory OrderModel.fromJson(Map<String, dynamic> json) {
@@ -32,6 +42,10 @@ class OrderModel {
       method: json['method'] ?? '',
       status: json['status'] ?? 'pending',
       createdAt: json['created_at'],
+      image_url: json['image_url'],
+      name: json['name'],
+      orderId: json["order_id"],
+      unit: json["unit"]
     );
   }
 
@@ -49,3 +63,5 @@ class OrderModel {
     };
   }
 }
+
+/*{order_id: 4, user_id: 7, address: 1, item: 1, phone: 7632975366, quantity: 1, price: 15.00, method: cod, status: confirmed, created_at: 2025-07-11 10:22:54, updated_at: 2025-07-11 10:22:54, name: Samosa, image_url: https://jalebi.shop/public/productImages/samose.jpg}*/

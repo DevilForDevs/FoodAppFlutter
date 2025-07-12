@@ -2,11 +2,10 @@ import 'dart:convert';
 
 import 'package:get/get.dart';
 import 'package:jalebi_shop_flutter/comman/networkings.dart';
-import 'package:jalebi_shop_flutter/layout/native/mobile/screens/commans/database.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:intl/intl.dart';
 
 import '../home_screen/controllers/order_model.dart';
-import '../product_model.dart';
 class OrderScreenController extends GetxController {
   var token = "";
   var orders = <OrderModel>[].obs; // observable list of orders
@@ -25,50 +24,18 @@ class OrderScreenController extends GetxController {
       final decodedJson = jsonDecode(credentials);
       token = decodedJson["token"];
 
-      // ✅ Step 1: Try loading orders with products from DB
-      List<Map<String, dynamic>> ordersWithProducts = await DatabaseHelper.getOrdersWithProduct();
-
-      if (ordersWithProducts.isEmpty) {
-        print("fetching from api");
-        final ordersFromApi = await getOrders(token);
-        if (ordersFromApi is List) {
-          for (var order in ordersFromApi) {
-            try {
-              await DatabaseHelper.insertOrderItem(
-                userId: order["user_id"].toString(),
-                address: order["address"].toString(),
-                itemId: int.tryParse(order["item"].toString()) ?? 0,
-                phone: order["phone"].toString(),
-                quantity: int.tryParse(order["quantity"].toString()) ?? 1,
-                price: double.tryParse(order["price"].toString())?.toInt() ?? 0,
-                method: order["method"] ?? '',
-                status: order["status"] ?? 'pending',
-                createdAt: order["created_at"].toString(),
-              );
-              print("Order inserted successfully.");
-            } catch (e) {
-              print("❌ Failed to insert order: $e");
-            }
-
-          }
-          ordersWithProducts = await DatabaseHelper.getOrdersWithProduct();
-        } else {
-          print("data type mismatch");
-
+      final ordersFromApi = await getOrders(token);
+      if (ordersFromApi is List) {
+        for (var order in ordersFromApi) {
+          final timestamp=order["created_at"].toString();
+          DateTime dt = DateTime.parse(timestamp);
+          String formatted = DateFormat("dd MMM, HH:mm").format(dt);
+          print(formatted);
+          orders.add(OrderModel(userId: order["user_id"].toString(), address: order["address"].toString(), item: order['item'].toString(), contact: order['phone'], quantity:order['quantity'], price: double.tryParse(order["price"].toString())?.toInt()??0, method: order['method'], status: order['status'], image_url: order['image_url'], name: order["name"],orderId: order["order_id"],unit: order["unit"],createdAt: formatted));
         }
       } else {
-        print("Loaded orders from local DB.");
-      }
+        print("data type mismatch");
 
-      // ✅ Step 2: Display orders with product info
-      for (var order in ordersWithProducts) {
-        print("Order ID: ${order['id']}");
-        print("User ID: ${order['user_id']}");
-        print("Product Name: ${order['name']}");
-        print("Thumbnail: ${order['thumbnail']}");
-        print("Unit: ${order['unit']}");
-        print("Quantity: ${order['quantity']}");
-        print("-----");
       }
     } else {
       print("No credentials found.");
@@ -78,15 +45,3 @@ class OrderScreenController extends GetxController {
 }
 
 
-/*await DatabaseHelper.insertOrderItem(
-                userId: order['user_id'].toString(),
-                address: order['address'].toString(),
-                itemId: int.tryParse(order['item'].toString()) ?? 0,
-                phone: order['phone'].toString(),
-                quantity: int.tryParse(order['quantity'].toString()) ?? 1,
-                price: int.tryParse(order['price'].toString()) ?? 0,
-                method: order['method'] ?? '',
-                status: order['status'] ?? 'pending',
-                createdAt: order['created_at'] ?? '',
-              );*/
-/* {order_id: 4, user_id: 7, address: 1, item: 1, phone: 7632975366, quantity: 1, price: 15.00, method: cod, status: confirmed, created_at: 2025-07-11 10:22:54, updated_at: 2025-07-11 10:22:54}*/

@@ -76,8 +76,6 @@ class AddressScreenController extends GetxController {
   Future<void> placeOrder(ProductModel product,int quantity,String paymentMethod) async {
     final response= await addOrder(token.value, userId.value, addressList[selectedAddressIndex.value].addressId.value.toString(), product.item_id.toString(), phone.text, quantity, product.price, "cod");
     if(response.contains("successfully")){
-      final inserted1=await DatabaseHelper.insertProduct(product);
-      final inserted=await DatabaseHelper.insertOrderItem(userId: userId.value, address: "address", itemId: product.item_id, phone: phone.text, quantity: quantity, price: product.price, method: "cod", status: "pending", createdAt: "today");
       Get.off(() => SucessScreen());
     }
   }

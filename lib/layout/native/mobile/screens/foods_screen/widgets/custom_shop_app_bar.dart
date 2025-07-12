@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:jalebi_shop_flutter/comman/sys_utilities.dart';
-import 'package:jalebi_shop_flutter/layout/native/mobile/screens/profile_controller.dart';
+import 'package:jalebi_shop_flutter/comman/sys_utilities.dart';import 'package:jalebi_shop_flutter/layout/native/mobile/screens/profile_controller.dart';
 
 import '../../commans/top_bar_cart_btn.dart';
 

@@ -30,7 +30,7 @@ class FoodScreen extends StatelessWidget {
               FoodScreenHeader(controller: controller.subController,),
               SizedBox(height: 12),
               GestureDetector(
-                onTap: () => Get.to(SearchScreen()),
+                onTap: () => Get.to(SearchScreen(subController: controller.subController,)),
                 child: Container(
                   padding: EdgeInsets.symmetric(horizontal: 10, vertical: 12),
                   decoration: BoxDecoration(

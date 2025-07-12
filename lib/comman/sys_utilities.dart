@@ -8,6 +8,8 @@ bool isDarkMode(BuildContext context) {
 }
 Future<void> addToCart({
   required int productId,
+  required String name,
+  required String image,
   required double price,
   required int quantity,
 }) async {
@@ -30,13 +32,11 @@ Future<void> addToCart({
     // Item not in cart: add new
     cartList.add({
       "id": productId,
+      "name": name,
+      "image": image,
       "price": price,
       "qty": quantity,
     });
   }
-
-  // Save back to SharedPreferences
-  await prefs.setString("cart", jsonEncode(cartList));
-
   print("Updated Cart: $cartList");
 }

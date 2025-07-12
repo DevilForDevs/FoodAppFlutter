@@ -11,4 +11,5 @@ class ProfileController extends GetxController {
   var village="".obs;
   var addressLong="".obs;
   AddressModel addresModel=AddressModel();
+  final cartSize=0.obs;
 }
