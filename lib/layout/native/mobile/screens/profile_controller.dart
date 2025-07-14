@@ -10,6 +10,6 @@ class ProfileController extends GetxController {
   var city="".obs;
   var village="".obs;
   var addressLong="".obs;
-  AddressModel addresModel=AddressModel();
+  AddressModel addresModel=AddressModel(addressId: 0,userId: 0,city: "",street: "",pincode: "",longAddress: "",addressType: "");
   final cartSize=0.obs;
 }

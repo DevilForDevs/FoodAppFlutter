@@ -1,11 +1,18 @@
+import 'dart:convert';
+import 'dart:ffi';
+
+import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
+import 'package:jalebi_shop_flutter/comman/networkings.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/commans/cart_button_controller.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../commans/database.dart';
 import 'cart_model.dart';
 
 class CartController extends GetxController {
   final cart = <CartItemModel>[].obs;
   final totalPrice = 0.0.obs;
+  final contact=TextEditingController();
 
   @override
   void onInit() {
@@ -39,14 +46,15 @@ class CartController extends GetxController {
   }
 
   Future<void> removeFromCart(CartItemModel itemToRemove) async {
+    print("removing");
     final db = await CartDatabase.database;
     await db.delete(
       'cart',
       where: 'id = ?',
-      whereArgs: [itemToRemove.id],
+      whereArgs: [itemToRemove.id.value],
     );
 
-    cart.removeWhere((item) => item.id == itemToRemove.id);
+    cart.removeWhere((item) => item.id.value == itemToRemove.id.value);
     calculateTotalPrice();
     updateCartButtonCount();
   }
@@ -55,6 +63,24 @@ class CartController extends GetxController {
     final cartItems = await CartDatabase.getCartItems();
     final cartButtonController = Get.find<CartButtonController>();
     cartButtonController.cartSize.value = cartItems.length;
+  }
+
+  Future<bool> placeOrder({required int address_id,required String phone,required String method}) async {
+    final prefs = await SharedPreferences.getInstance();
+    final credentials = prefs.getString('credentials');
+
+    if (credentials != null) {
+      final decodedJson = jsonDecode(credentials);
+      final userId=decodedJson["user"]["id"].toString();
+      final token = decodedJson["token"];
+      for(var item in cart){
+        final mResponse=await addOrder(token, userId, address_id.toString(), item.id.value.toString(), phone, item.qty.value, item.price.value.toInt(),method);
+      }
+      return true;
+
+    }
+    return false;
+
   }
 }
 

@@ -1,24 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:jalebi_shop_flutter/layout/native/mobile/screens/addresses_list/address_screen_controller.dart';
-import 'package:jalebi_shop_flutter/layout/native/mobile/screens/sucess_screen/sucess_screen.dart';
 import '../commans/custom_app_bar.dart';
-import '../product_model.dart';
 import 'check_out_controller.dart';
 
 
 class CheckOutScreen extends StatelessWidget {
-  CheckOutScreen({super.key, required this.food, required this.quantity, required this.addressScreenController});
-
-  final controller = Get.put(CheckoutController());
-  final ProductModel food;
-  final int quantity;
-  final AddressScreenController addressScreenController;
-
-
+  const CheckOutScreen({super.key, required this.payFailure, required this.paySuccess, required this.totalPrice});
+  final void Function(String transactionId) paySuccess;
+  final VoidCallback payFailure;
+  final int totalPrice;
 
   @override
   Widget build(BuildContext context) {
+    final controller = Get.put(
+      CheckoutController(
+        onSuccess: (response) {
+          paySuccess(response.paymentId ?? '');
+        },
+        onFailure: (response) {
+          payFailure();
+        },
+      ),
+    );
     return SafeArea(
       child: Scaffold(
         appBar: CustomAppBar(title: "Checkout"),
@@ -33,7 +36,7 @@ class CheckOutScreen extends StatelessWidget {
                   Text("Total Price:",
                       style:
                       TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
-                  Text("₹${quantity*food.price}",
+                  Text("₹$totalPrice",
                       style:
                       TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                 ],
@@ -63,7 +66,7 @@ class CheckOutScreen extends StatelessWidget {
                 child: ElevatedButton(
                   onPressed: () {
                     if (controller.selectedPaymentMethod.value == 'cod') {
-                       addressScreenController.placeOrder(food, quantity, "cod");
+                       paySuccess("cod");
                     } else {
                       controller.openCheckout();
                     }

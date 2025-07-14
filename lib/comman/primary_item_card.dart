@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jalebi_shop_flutter/comman/sys_utilities.dart';
+import 'package:jalebi_shop_flutter/layout/native/mobile/screens/commans/database.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/product_model.dart';
 
 
@@ -9,10 +10,10 @@ import '../layout/native/mobile/screens/product_detail_screen/widgets/food_detai
 class PrimaryItemCard extends StatelessWidget {
   const PrimaryItemCard({
     super.key,
-    this.sideIcon=Icons.favorite_border, required this.productModel,
+   required this.productModel,
   });
 
-  final IconData sideIcon;
+
   final ProductModel productModel;
   @override
   Widget build(BuildContext context) {
@@ -87,17 +88,35 @@ class PrimaryItemCard extends StatelessWidget {
                     ),
                     const Spacer(),
                     GestureDetector(
-                      onTap: () => Get.to(FavouriteScreen()),
+                      onTap: () async {
+                        if (productModel.isFavourite.value) {
+                          // If already fav => remove from DB & update
+                          await CartDatabase.removeFromFavourites(productModel.item_id);
+                          productModel.isFavourite.value = false;
+                        } else {
+                          // If not fav => add to DB & update
+                          await CartDatabase.addToFavourites(
+                            id: productModel.item_id,
+                            name: productModel.name,
+                            image: productModel.thumbnail,
+                            price: productModel.price.toDouble(),
+                            about: productModel.about
+                          );
+                          productModel.isFavourite.value = true;
+                        }
+
+                      },
                       child: Container(
                         width: 24,
                         height: 24,
                         decoration: const BoxDecoration(
                           shape: BoxShape.circle,
                         ),
-                        child: Icon(
-                          sideIcon,
-                          color: Color(0xFFE53935),
-                          size: 20,
+                        child: Obx(()=>Icon(
+                            productModel.isFavourite.value?Icons.favorite:Icons.favorite_border,
+                            color: Color(0xFFE53935),
+                            size: 20,
+                          ),
                         ),
                       ),
                     )

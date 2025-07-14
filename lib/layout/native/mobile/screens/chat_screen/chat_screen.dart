@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:jalebi_shop_flutter/comman/sys_utilities.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/commans/custom_app_bar.dart';
+import 'package:visibility_detector/visibility_detector.dart';
 import 'chat_controller.dart'; // make sure the path is correct
 
 class ChatScreen extends StatelessWidget {
   ChatScreen({super.key});
 
   final ChatController controller = Get.put(ChatController());
-  final TextEditingController textController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     final isDark=isDarkMode(context);
@@ -25,7 +26,7 @@ class ChatScreen extends StatelessWidget {
             Expanded(
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                color: isDark?Color(0xFF303030):Color(0xFFF0F5FA),
+                color: isDark?Color(0xFF303030):Colors.white,
                 child: Obx(() {
                   return ListView.builder(
                     keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
@@ -33,14 +34,25 @@ class ChatScreen extends StatelessWidget {
                     itemCount: controller.messages.length,
                     itemBuilder: (context, index) {
                       final msg = controller.messages[controller.messages.length - 1 - index];
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          msg.isUser
-                              ? OutGoingMessage(message: msg.text)
-                              : IncomingMessage(message: msg.text),
-                          if (index != 0) const SizedBox(height: 16),
-                        ],
+                      return VisibilityDetector(
+                        onVisibilityChanged: (visibilityInfo) {
+                          final visiblePercentage = visibilityInfo.visibleFraction * 100;
+                          if (visiblePercentage >= 95.0 && msg.isSeen!=2) {
+                            if(!msg.isUser){
+                              controller.visibleChatIds.add(msg.chatId);
+                            }
+                          }
+                        },
+                        key: Key('msg-$index'),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            msg.isUser
+                                ? OutGoingMessage(message: msg.text,ts:msg.text,seen: msg.isSeen,)
+                                : IncomingMessage(message: msg.text),
+                            if (index != 0) const SizedBox(height: 16),
+                          ],
+                        ),
                       );
                     },
                   );
@@ -62,7 +74,7 @@ class ChatScreen extends StatelessWidget {
                     const SizedBox(width: 10),
                     Expanded(
                       child: TextField(
-                        controller: textController,
+                        controller: controller.inputController,
                         onChanged: (val) => controller.messageText.value = val,
                         decoration: const InputDecoration(
                           hintText: 'Type a message...',
@@ -82,8 +94,7 @@ class ChatScreen extends StatelessWidget {
                           child: const Icon(Icons.send, color: Color(0xFFFF7622)),
                         ),
                         onPressed: () {
-                          controller.sendMessage(textController.text);
-                          textController.clear();
+                          controller.sendMessage();
                         },
                       ),
                     ),
@@ -105,8 +116,10 @@ class IncomingMessage extends StatelessWidget {
   });
   final String message;
 
+
   @override
   Widget build(BuildContext context) {
+
     final isDark=isDarkMode(context);
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
@@ -158,9 +171,10 @@ class IncomingMessage extends StatelessWidget {
 
 
 class OutGoingMessage extends StatelessWidget {
-  const OutGoingMessage({super.key, required this.message});
+  const OutGoingMessage({super.key, required this.message, required this.ts, required this.seen});
   final String message;
-
+  final String ts;
+  final int seen;
   @override
   Widget build(BuildContext context) {
     final isDark=isDarkMode(context);
@@ -169,7 +183,7 @@ class OutGoingMessage extends StatelessWidget {
       children: [
         Padding(
           padding: const EdgeInsets.only(top: 20,right: 10),
-          child: const Icon(Icons.done_all, size: 16, color: Colors.grey),
+          child:  seen==0?Icon(Icons.check,color: Colors.grey,size: 16,):Icon(Icons.done_all, size: 16, color:seen==2?Color(0xFFFF7622):Colors.grey),
         ),
         ConstrainedBox(
           constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.7),
@@ -178,7 +192,7 @@ class OutGoingMessage extends StatelessWidget {
             children: [
               // Date text (now left aligned)
               Text(
-                "July 1, 2025",
+                "12 july",
                 style: TextStyle(fontSize: 12, color: isDark?Colors.white:Color(0xFF1A1817)),
               ),
               const SizedBox(height: 4),

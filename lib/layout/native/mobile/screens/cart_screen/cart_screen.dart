@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jalebi_shop_flutter/comman/sys_utilities.dart';
+import 'package:jalebi_shop_flutter/layout/native/mobile/screens/address_screen/address_screen.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/cart_screen/cart_controller.dart';
+import 'package:jalebi_shop_flutter/layout/native/mobile/screens/check_out_screen/check_out_screen.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/commans/custom_app_bar.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/commans/custom_button.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/profile_controller.dart';
+import 'package:jalebi_shop_flutter/layout/native/mobile/screens/sucess_screen/sucess_screen.dart';
 class CartScreen extends StatelessWidget {
   const CartScreen({super.key});
 
@@ -39,7 +42,7 @@ class CartScreen extends StatelessWidget {
                   ),
                   Spacer(),
                   GestureDetector(
-                    onTap: (){},
+                    onTap: ()=>Get.to(AddressScreen(addressModel: address.addresModel)),
                     child: Text(
                       "EDIT",
                       style: TextStyle(
@@ -76,25 +79,86 @@ class CartScreen extends StatelessWidget {
                     ),
                   ),
                   Spacer(),
-                  Text(
-                    "₹${controller.totalPrice.toInt()}",
-                    style: TextStyle(
-                        color:isDark?Colors.white: Color(0xFF181C2E),
-                        fontSize: 20,
-                        fontWeight: FontWeight.w400,
-                        fontFamily: "Poppins"
+                  Obx(()=>Text(
+                      "₹${controller.totalPrice.value.toInt()}",
+                      style: TextStyle(
+                          color:isDark?Colors.white: Color(0xFF181C2E),
+                          fontSize: 20,
+                          fontWeight: FontWeight.w400,
+                          fontFamily: "Poppins"
+                      ),
                     ),
                   ),
                 ],
               ),
               SizedBox(height: 5,),
-              Center(child: CustomActionButton(label: "Place Order", onPressed: (){},backgroundColor:Color(0xFFFF7622) ,))
+              Center(
+                child: CustomActionButton(
+                  label: "Place Order",
+                  backgroundColor: Color(0xFFFF7622),
+                  onPressed: () async {
+
+
+                    final result = await Get.dialog<String>(
+                      AlertDialog(
+                        title: Text("Enter your phone number"),
+                        content: TextField(
+                          controller: controller.contact,
+                          keyboardType: TextInputType.phone,
+                          decoration: InputDecoration(hintText: "Phone Number"),
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Get.back(), // Cancel
+                            child: Text("Cancel"),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              final phone = controller.contact.text.trim();
+                              if (phone.isNotEmpty) {
+                                Get.back(result: phone); // Return phone number
+                              }
+                            },
+                            child: Text("Continue"),
+                          ),
+                        ],
+                      ),
+                    );
+
+                    if (result != null && result.isNotEmpty) {
+                      // You now have the phone number in `result`
+                      Get.to(
+                        CheckOutScreen(
+                          totalPrice: controller.totalPrice.value.toInt(),
+                          payFailure: () {
+                            print("payment failed");
+                          },
+                          paySuccess: (tid) async {
+                            final orderPlaced = await controller.placeOrder(
+                              address_id: address.addresModel.addressId.value,phone: result,method: tid
+                            );
+                            if(orderPlaced){
+                              for(var m in controller.cart){
+                                controller.removeFromCart(m);
+                              }
+                              Get.off(SucessScreen());
+                            }
+
+                          },
+                        ),
+                      );
+                    }
+                  },
+                ),
+              )
+
             ],
           ),
         ),
         body: Padding(
           padding: EdgeInsets.all(12),
           child: Obx(()=>ListView.builder(
+
               itemCount: controller.cart.length,
               itemBuilder: (context,index){
                 final cartItem=controller.cart[index];
@@ -147,23 +211,29 @@ class CartScreen extends StatelessWidget {
                               ],
                             ),
                           ),
+                          SizedBox(height: 12,),
                           Row(
                             children: [
                               Text(
-                                "₹${cartItem.price.toInt()}",
+                                "₹${cartItem.price.value.toInt()}",
                                 style: TextStyle(
-                                  color: isDark?Colors.white:Color(0xFf1A1817),
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w800,
-                                  fontFamily: "Poppins"
+                                    color: isDark?Colors.white:Color(0xFf1A1817),
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w800,
+                                    fontFamily: "Poppins"
                                 ),
                               )
                             ],
                           ),
+                          SizedBox(height: 12,),
                           Row(
                             children: [
                               GestureDetector(
                                 onTap: (){
+                                  if(cartItem.qty.value<1){
+                                    cartItem.qty.value--;
+                                    controller.totalPrice.value=controller.totalPrice.value-cartItem.price.value;
+                                  }
 
                                 },
                                 child: Container(
@@ -175,7 +245,18 @@ class CartScreen extends StatelessWidget {
                                   child: Icon(Icons.remove, color: isDark?Colors.white:Colors.black),
                                 ),
                               ),
-
+                              SizedBox(width: 12,),
+                              Obx(()=>Text(
+                                "${cartItem.qty.value}",
+                                style: TextStyle(
+                                    color: isDark?Colors.white:Color(0xFf1A1817),
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w800,
+                                    fontFamily: "Poppins"
+                                ),
+                              ),
+                              ),
+                              SizedBox(width: 12,),
                               GestureDetector(
                                 onTap: (){
                                   final price = cartItem.price;
@@ -194,6 +275,7 @@ class CartScreen extends StatelessWidget {
                                   // Only increment if current quantity is less than max allowed
                                   if (currentQty < maxQty) {
                                     cartItem.qty.value++;
+                                    controller.totalPrice.value=controller.totalPrice.value+cartItem.price.value;
                                   }else{
                                     Get.snackbar("Max Orderable","Quantity is ${maxQty.toString()}",
                                       snackPosition: SnackPosition.BOTTOM,

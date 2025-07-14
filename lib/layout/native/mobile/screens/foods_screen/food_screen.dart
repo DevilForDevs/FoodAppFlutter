@@ -95,7 +95,7 @@ class FoodScreen extends StatelessWidget {
                   ),
                   itemBuilder: (context, index) {
                     final product=controller.products[index];
-                    return PrimaryItemCard(productModel: product,);
+                    return PrimaryItemCard(productModel: product);
                   },
                 ),
               )

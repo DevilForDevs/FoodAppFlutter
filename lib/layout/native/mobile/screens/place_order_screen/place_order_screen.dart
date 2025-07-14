@@ -7,6 +7,7 @@ import 'package:jalebi_shop_flutter/layout/native/mobile/screens/product_model.d
 
 import '../addresses_list/address_screen_controller.dart';
 import '../commans/custom_app_bar.dart';
+import '../sucess_screen/sucess_screen.dart';
 
 class PlaceOrderScreen extends StatelessWidget {
   const PlaceOrderScreen({super.key, required this.food, required this.quantity});
@@ -152,7 +153,14 @@ class PlaceOrderScreen extends StatelessWidget {
           padding: EdgeInsets.symmetric(horizontal: 24,vertical: 24),
           child: CustomActionButton(label: "CheckOut", onPressed: (){
             if(controller.phone.text.isNotEmpty){
-              Get.to(CheckOutScreen(addressScreenController: controller,food: food,quantity: quantity,));
+              Get.to(CheckOutScreen( totalPrice:food.price,payFailure: (){
+                print("payment failure");
+              }, paySuccess: (tId) async {
+                final isOrderPlaced=await controller.placeOrder(food, quantity, tId);
+                if(isOrderPlaced.contains("successfully")){
+                  Get.off(() => SucessScreen());
+                }
+              }));
             }
           },backgroundColor: Color(0xFFFF7622)),
         ),
@@ -173,4 +181,6 @@ class PlaceOrderScreen extends StatelessWidget {
     );
   }
 }
+
+/**/
 

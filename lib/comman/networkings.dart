@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:http/http.dart' as http;
 
+
+
 // Shared domain variable
 const String domain = 'https://jalebi.shop';
 
@@ -270,4 +272,35 @@ Future<Object> getOrders(String token) async {
     return {'error_message': e.toString()};
   }
 }
+
+Future<Object> syncMessages({
+  required int chatWithId,
+  String? newMessage,
+  List<int> seenIds = const [],
+  required String bearerToken,
+}) async {
+
+  try{
+    final url = Uri.parse('$domain/api/messageSync');
+
+    final headers = {
+      'Authorization': 'Bearer $bearerToken',
+      'Accept': 'application/json',
+    };
+
+    final body = {
+      'chat_with': chatWithId.toString(),
+      if (newMessage != null && newMessage.isNotEmpty) 'message': newMessage,
+      if (seenIds.isNotEmpty) 'seen_ids': jsonEncode(seenIds),
+    };
+
+    final response = await http.post(url, headers: headers, body: body);
+    return response.body;
+  }catch (e) {
+    return {'error_message': e.toString()};
+  }
+
+
+}
+
 

@@ -9,11 +9,9 @@ class CartButtonController extends GetxController {
   @override
   Future<void> onInit() async {
     super.onInit();
-   /* final cartItems = await CartDatabase.getCartItems();
-    cartSize.value = cartItems.length;*/
-
+    final cartItems = await CartDatabase.getCartItems();
+    cartSize.value = cartItems.length;
   }
-  /*27.0.12077973*/
 
   @override
   void onClose() {

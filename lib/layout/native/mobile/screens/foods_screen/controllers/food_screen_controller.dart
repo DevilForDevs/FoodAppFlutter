@@ -7,6 +7,7 @@ import 'package:jalebi_shop_flutter/layout/native/mobile/screens/address_model.d
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/product_model.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/profile_controller.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sqflite/sqflite.dart';
 
 import '../../commans/database.dart';
 
@@ -24,7 +25,7 @@ class FoodScreenController extends GetxController {
     subController = Get.put(ProfileController());
     final muser=await setUpProfile();
     loadItems();
-    fetchCartItems();
+
 
   }
   Future<void> setUpProfile() async {
@@ -44,7 +45,14 @@ class FoodScreenController extends GetxController {
 
       // ✅ Use last address
       if (addressList.isNotEmpty) {
-        subController.addresModel =AddressModel.fromJson(addressList.last);
+        final lastAddress=addressList.last;
+        subController.addresModel.street.value=lastAddress["street"];
+        subController.addresModel.addressId.value=lastAddress["address_id"];
+        subController.addresModel.userId.value=lastAddress["user_id"];
+        subController.addresModel.city.value=lastAddress["city"];
+        subController.addresModel.pincode.value=lastAddress["pincode"];
+        subController.addresModel.longAddress.value=lastAddress["longAddress"];
+        subController.addresModel.addressType.value=lastAddress["addressType"];
       }
     } else {
       print('No credentials found.');
@@ -56,23 +64,14 @@ class FoodScreenController extends GetxController {
     final result=await getRestrictedItems(userId, token);
     if (result is List) {
       for (var item in result) {
-        final mProduct=ProductModel(name: item["name"], thumbnail: item["image_url"], price: item["price"], isFavourite: false, about:item["description"],unit: item["unit"],item_id: item["id"]);
+        final isFavourite=await CartDatabase.isFavourite(item["id"]);
+        final mProduct=ProductModel(name: item["name"], thumbnail: item["image_url"], price: item["price"], isFavourite: isFavourite, about:item["description"],unit: item["unit"],item_id: item["id"]);
         products.add(mProduct);
       }
     } else if (result is Map && result.containsKey('error_message')) {
       print("Error: ${result['error_message']}");
     }
 
-  }
-  Future<void> fetchCartItems() async {
-    final prefs = await SharedPreferences.getInstance();
-    final cartJson = prefs.getString("cart");
-
-    if (cartJson != null) {
-      final List<dynamic> cartList = jsonDecode(cartJson);
-      subController.cartSize.value=cartList.length;
-
-    }
   }
 
   

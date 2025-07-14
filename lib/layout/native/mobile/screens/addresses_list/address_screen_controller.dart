@@ -65,7 +65,9 @@ class AddressScreenController extends GetxController {
 
   void loadAddressesFromJson(List<dynamic> jsonList) {
     for (int i = 0; i < jsonList.length; i++) {
-      addressList.add(AddressModel.fromJson(jsonList[i]));
+      final lastAddress=jsonList[i];
+      final m=AddressModel(addressId:lastAddress["address_id"],userId:lastAddress["user_id"],city: lastAddress["city"],street: lastAddress["street"],pincode: lastAddress["pincode"],longAddress: lastAddress["longAddress"],addressType: lastAddress["addressType"] );
+      addressList.add(m);
     }
   }
 
@@ -73,10 +75,8 @@ class AddressScreenController extends GetxController {
     Get.to(AddressScreen(addressModel: addressList[index]));
 
   }
-  Future<void> placeOrder(ProductModel product,int quantity,String paymentMethod) async {
+  Future<String> placeOrder(ProductModel product,int quantity,String paymentMethod) async {
     final response= await addOrder(token.value, userId.value, addressList[selectedAddressIndex.value].addressId.value.toString(), product.item_id.toString(), phone.text, quantity, product.price, "cod");
-    if(response.contains("successfully")){
-      Get.off(() => SucessScreen());
-    }
+    return response;
   }
 }
