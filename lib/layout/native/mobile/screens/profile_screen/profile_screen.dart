@@ -13,6 +13,7 @@ import 'package:jalebi_shop_flutter/layout/native/mobile/screens/personal_info_s
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/profile_controller.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/settings_screen/settings_screen.dart';
 
+import '../../../../../comman/log_out_dialog.dart';
 import '../../../../../comman/profile_list_item.dart';
 
 class ProfileScreen extends StatelessWidget {
@@ -21,7 +22,7 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark=isDarkMode(context);
-    final controller=Get.put(ProfileController());
+    final controller=Get.find<ProfileController>();
     return SafeArea(
       child: Scaffold(
         appBar:CustomAppBar(
@@ -40,39 +41,40 @@ class ProfileScreen extends StatelessWidget {
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                       ),
-                      child: ClipOval(
-                        child: Image.asset(
-                          "assets/person.png",
-                          fit: BoxFit.cover,
-                          width: 180,
-                          height: 180,
+                      child: Obx(
+                            () => CircleAvatar(
+                          radius: 40,
+                          backgroundImage: controller.pickedImage.value != null
+                              ? FileImage(controller.pickedImage.value!) // Use the picked image if available
+                              : AssetImage('assets/person.png') as ImageProvider, // Use the default image if not
                         ),
                       ),
                     ),
                     SizedBox(width: 20,),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          controller.name.value,
-                          style: TextStyle(
-                            color:isDark?Colors.white: Color(0xFF32343E),
-                            fontSize: 20,
-                            fontWeight: FontWeight.w400,
-                            fontFamily: "Sen"
-                          ),
-                        ),
-                        Text(
-                          "I love fast food",
-                          style: TextStyle(
-                              color: Color(0xFFA0A5BA),
-                              fontSize: 14,
+                    Obx(()=>Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            controller.name.value,
+                            style: TextStyle(
+                              color:isDark?Colors.white: Color(0xFF32343E),
+                              fontSize: 20,
                               fontWeight: FontWeight.w400,
                               fontFamily: "Sen"
+                            ),
                           ),
-                        ),
+                          Text(
+                            controller.bio.value,
+                            style: TextStyle(
+                                color: Color(0xFFA0A5BA),
+                                fontSize: 14,
+                                fontWeight: FontWeight.w400,
+                                fontFamily: "Sen"
+                            ),
+                          ),
 
-                      ],
+                        ],
+                      ),
                     )
 
                   ],
@@ -112,10 +114,10 @@ class ProfileScreen extends StatelessWidget {
                         padding: const EdgeInsets.all(12),
                         child: ProfileListItem(title:"Favourite",icon: Icons.favorite_border,iconColor: Color(0xFFB33DFB),onTap: ()=>Get.to(FavouriteScreen()),),
                       ),
-                      Padding(
+                     /* Padding(
                         padding: const EdgeInsets.all(12),
                         child: ProfileListItem(title:"Notifications",icon: Icons.notifications,iconColor: Color(0xFFFFAA2A),onTap: ()=>Get.to(NotificationScreen()),),
-                      ),
+                      ),*/
 
 
 
@@ -132,7 +134,7 @@ class ProfileScreen extends StatelessWidget {
                     children: [
                       Padding(
                         padding: const EdgeInsets.all(12),
-                        child: ProfileListItem(title:"Help",icon: Icons.question_mark,iconColor: Color(0xFFFB6F3D),onTap: ()=>Get.to(ChatScreen()),),
+                        child: ProfileListItem(title:"Help",icon: Icons.chat,iconColor: Color(0xFFFB6F3D),onTap: ()=>Get.to(ChatScreen()),),
                       ),
                       Padding(
                         padding: const EdgeInsets.all(12),
@@ -152,7 +154,9 @@ class ProfileScreen extends StatelessWidget {
                     children: [
                       Padding(
                         padding: const EdgeInsets.all(12),
-                        child: ProfileListItem(title:"Log Out",icon: Icons.logout,iconColor: Color(0xFFFB4A59),onTap: (){},),
+                        child: ProfileListItem(title:"Log Out",icon: Icons.logout,iconColor: Color(0xFFFB4A59),onTap: (){
+                          showLogoutDialog(context);
+                        },),
                       ),
                     ],
                   ),

@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'layout/base_layout.dart';
-import 'layout/native/mobile/screens/cart_screen/cart_controller.dart';
+import 'layout/native/mobile/screens/settings_screen/theme_controller.dart';
 
-void main() {
+
+Future<void> main() async {
+
+  Get.put(ThemeController());
 
   runApp(const MyApp());
 }

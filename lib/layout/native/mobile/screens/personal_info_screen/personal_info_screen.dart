@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/commans/custom_app_bar.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/password_reset/reset_password_screen.dart';
+import '../profile_controller.dart';
 import 'personal_info_controller.dart';
 
 class PersonalInfoScreen extends StatelessWidget {
@@ -10,7 +12,7 @@ class PersonalInfoScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.put(PersonalInfoController());
-
+    final profileController = Get.find<ProfileController>();
     return SafeArea(
       child: Scaffold(
         appBar: CustomAppBar(
@@ -18,26 +20,35 @@ class PersonalInfoScreen extends StatelessWidget {
         ),
         body: Center(
           child: Padding(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.symmetric(horizontal: 36),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Stack(
-                  children: [
-                    const CircleAvatar(
-                      radius: 40,
-                      backgroundImage: AssetImage('assets/person.png'), // Replace this
-                    ),
-                    Positioned(
-                      bottom: 0,
-                      right: 4,
-                      child: CircleAvatar(
-                        radius: 15,
-                        backgroundColor: Color(0xFFFF7622),
-                        child: Icon(Icons.edit, size: 16, color: Colors.white),
+                Center(
+                  child: Stack(
+                    children: [
+                      Obx(
+                            () => CircleAvatar(
+                          radius: 40,
+                          backgroundImage: profileController.pickedImage.value != null
+                              ? FileImage(profileController.pickedImage.value!) // Use the picked image if available
+                              : AssetImage('assets/person.png') as ImageProvider, // Use the default image if not
+                        ),
                       ),
-                    )
-                  ],
+                      Positioned(
+                        bottom: 0,
+                        right: 4,
+                        child: CircleAvatar(
+                          radius: 15,
+                          backgroundColor: Color(0xFFFF7622),
+                          child: IconButton(onPressed:(){
+                            controller.pickImage();
+
+                          }, icon: Icon(Icons.edit, size: 16, color: Colors.white)),
+                        ),
+                      )
+                    ],
+                  ),
                 ),
                 Obx(() => Row(
                   mainAxisAlignment: MainAxisAlignment.end,
@@ -48,11 +59,15 @@ class PersonalInfoScreen extends StatelessWidget {
                     ),
                     ),
                     IconButton(
-                      onPressed: () {
-                        controller.isEditing.value = !controller.isEditing.value;
+                      onPressed: controller.isEditing.value
+                          ? null // ❌ Disable save icon when editing is true
+                          : () {
+                        // ✅ Toggle edit mode when pencil is clicked
+                        controller.isEditing.value = true;
                       },
                       icon: Icon(
-                        controller.isEditing.value ? Icons.save : Icons.edit,color: Color(0xFFFF7622),
+                        controller.isEditing.value ? Icons.save : Icons.edit,
+                        color: const Color(0xFFFF7622),
                       ),
                     ),
                   ],
@@ -62,8 +77,8 @@ class PersonalInfoScreen extends StatelessWidget {
                 const SizedBox(height: 16),
                 _buildInfoField("Email", controller.emailController, controller),
                 const SizedBox(height: 16),
-                _buildInfoField("Phone Number", controller.phoneController, controller),
-                const SizedBox(height: 24),
+                /*_buildInfoField("Phone Number", controller.phoneController, controller),
+                const SizedBox(height: 24),*/
                 _buildInfoField("Bio(Optional)", controller.bioController, controller),
                 const SizedBox(height: 24),
                 Obx(() {
@@ -77,9 +92,11 @@ class PersonalInfoScreen extends StatelessWidget {
                   )
                       : const SizedBox.shrink();
                 }),
-                SizedBox(height: 12,),
+                SizedBox(height: 24,),
                 GestureDetector(
-                  onTap: ()=>Get.to(ResetPasswordScreen()),
+                  onTap: (){
+                    controller.updatePassword();
+                  },
                   child: Text(
                     "Reset Password",
                     style: TextStyle(

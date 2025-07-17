@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:jalebi_shop_flutter/comman/sys_utilities.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/address_model.dart';
@@ -23,7 +24,7 @@ class AddressScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "ADDRESS",
+                "Full ADDRESS",
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w400,
@@ -99,6 +100,12 @@ class AddressScreen extends StatelessWidget {
                         width: 135,
                         child: TextField(
                           controller: controller.pinCode,
+                          keyboardType: TextInputType.number, // Show number keyboard
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                            LengthLimitingTextInputFormatter(6),
+                          ],
+                          maxLength: 6, // Only allow digits (0-9)
                           decoration: InputDecoration(
                             filled: true,
                             fillColor:isDark?Color(0xFF303030): Color(0xFFF0F5FA),
@@ -193,7 +200,7 @@ class AddressScreen extends StatelessWidget {
                 ),
               ),
               SizedBox(height: 16,),
-              CustomActionButton(width:400,backgroundColor:Color(0xFFFF7622),label: "SAVE LOCATION", onPressed: ()=>controller.saveAddress(context),textStyle: TextStyle(
+              CustomActionButton(width:400,backgroundColor:Color(0xFFFF7622),label: "SAVE LOCATION", onPressed: ()=>controller.saveAddress(),textStyle: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w400,
                 fontFamily: "Poppins",

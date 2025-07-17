@@ -85,19 +85,42 @@ class FoodScreen extends StatelessWidget {
                 ],
               ),
               SizedBox(height: 12),
-              Obx(()=>GridView.builder(
-                  itemCount:controller.products.length,
-                  shrinkWrap: true,
-                  physics: NeverScrollableScrollPhysics(),
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2, // 2 items per row
-                    childAspectRatio: 0.8, // Adjust based on card height/width
-                  ),
-                  itemBuilder: (context, index) {
-                    final product=controller.products[index];
-                    return PrimaryItemCard(productModel: product);
-                  },
+              Obx(()=>controller.products.isEmpty?Center(
+                child: Column(
+                  children: [
+                    SizedBox(height: 200,),
+                    Text("Items not loaded"),
+                    SizedBox(height: 20,),
+
+                    GestureDetector(
+                        child: Text(
+                          "Reload",
+                          style: TextStyle(
+                            fontFamily: "Poppins",
+                            fontWeight: FontWeight.w500,
+                            fontSize: 16,
+                            color: Color(0xFFFC6E2A),
+                          ),
+                        ),
+                      onTap: (){
+                          controller.loadItems();
+                      },
+                    )
+                  ],
                 ),
+              ):GridView.builder(
+                itemCount:controller.products.length,
+                shrinkWrap: true,
+                physics: NeverScrollableScrollPhysics(),
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2, // 2 items per row
+                  childAspectRatio: 0.8, // Adjust based on card height/width
+                ),
+                itemBuilder: (context, index) {
+                  final product=controller.products[index];
+                  return PrimaryItemCard(productModel: product);
+                },
+              ),
               )
             ],
           ),

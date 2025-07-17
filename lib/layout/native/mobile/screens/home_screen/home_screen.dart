@@ -74,7 +74,7 @@ class HomeScreen extends StatelessWidget {
                           signupController.passwordReset.value=true;
                           signupController.otp.value=int.tryParse(response['otp'].toString())!;
                           hideLoadingDialog(ctx);
-                          Get.to(VerifyEmailScreen());
+                          Get.to(VerifyEmailScreen(emailUpdate: false,displayEmail: controller.emailController.text,otp: signupController.otp.value.toString(),));
                         } else {
                           // Handle error
                           print("Error: ${response['message'] ?? 'Unknown error'}");
@@ -107,7 +107,7 @@ class HomeScreen extends StatelessWidget {
                               hideLoadingDialog(context);
                               final prefs = await SharedPreferences.getInstance();
                               await prefs.setString('credentials', result); // stores entire JSON string
-                              Get.to(FoodScreen());
+                              Get.off(FoodScreen());
                             } else {
                               Get.snackbar("Login Failed",result,
                                 snackPosition: SnackPosition.BOTTOM,

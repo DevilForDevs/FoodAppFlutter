@@ -18,20 +18,20 @@ class FavouriteScreen extends StatelessWidget {
         appBar: CustomAppBar(title: "Wishlist"),
         body: Padding(
           padding: const EdgeInsets.all(12),
-          child: Obx(()=>GridView.builder(
-              padding: EdgeInsets.all(0),
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                crossAxisSpacing: 12,
-                mainAxisSpacing: 12,
-                mainAxisExtent: 200, // forces item height
-              ),
-              itemCount: controller.favourites.length,
-              itemBuilder: (context, index) {
-                final item=controller.favourites[index];
-                 return PrimaryItemCard(productModel: item,);
-              },
+          child: Obx(()=>controller.favourites.isEmpty?Center(child: Text("Wishlist list is empty"),):GridView.builder(
+            padding: EdgeInsets.all(0),
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              crossAxisSpacing: 12,
+              mainAxisSpacing: 12,
+              mainAxisExtent: 200, // forces item height
             ),
+            itemCount: controller.favourites.length,
+            itemBuilder: (context, index) {
+              final item=controller.favourites[index];
+              return PrimaryItemCard(productModel: item,);
+            },
+          ),
           ),
         ),
 

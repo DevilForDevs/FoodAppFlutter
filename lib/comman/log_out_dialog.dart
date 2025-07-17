@@ -1,8 +1,11 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/home_screen/home_screen.dart';
+import 'package:path/path.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void showLogoutDialog(BuildContext context) {
@@ -21,7 +24,18 @@ void showLogoutDialog(BuildContext context) {
             Navigator.of(context).pop();
             showLoadingDialog(context);
             await logout(context);
-            hideLoadingDialog(context);
+            Get.back();
+            final dir = await getApplicationDocumentsDirectory();
+            final path = join(dir.path, 'cart.db');
+            final file = File(path);
+
+            if (await file.exists()) {
+              await file.delete();
+              final prefs = await SharedPreferences.getInstance();
+              prefs.remove("credentials");
+            } else {
+              print('cart.db does not exist.');
+            }
             Get.to(HomeScreen());
           },
           child: Text('Log Out'),

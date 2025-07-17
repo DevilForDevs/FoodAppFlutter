@@ -157,154 +157,159 @@ class CartScreen extends StatelessWidget {
         ),
         body: Padding(
           padding: EdgeInsets.all(12),
-          child: Obx(()=>ListView.builder(
+          child:Obx(()=>controller.cart.isEmpty?
+          Center(
+            child: Text(
+              "Cart is Empty"
+            ),
+          ):ListView.builder(
 
-              itemCount: controller.cart.length,
-              itemBuilder: (context,index){
-                final cartItem=controller.cart[index];
-                return Padding(
-                  padding: EdgeInsets.zero,
-                  child:Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        width: 120,
-                        height: 120,
-                        margin: EdgeInsets.symmetric(vertical: 10,horizontal: 10),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(20), // Rounded corners
-                          image: DecorationImage(
-                            image: NetworkImage(cartItem.image.value), // Replace with your asset path
-                            fit: BoxFit.cover, // or BoxFit.contain, based on need
-                          ),
+            itemCount: controller.cart.length,
+            itemBuilder: (context,index){
+              final cartItem=controller.cart[index];
+              return Padding(
+                padding: EdgeInsets.zero,
+                child:Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      width: 120,
+                      height: 120,
+                      margin: EdgeInsets.symmetric(vertical: 10,horizontal: 10),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20), // Rounded corners
+                        image: DecorationImage(
+                          image: NetworkImage(cartItem.image.value), // Replace with your asset path
+                          fit: BoxFit.cover, // or BoxFit.contain, based on need
                         ),
                       ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(top: 15),
-                            child: Row(
-                              children: [
-                                Text(
-                                    cartItem.name.value,
-                                  style: TextStyle(
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(top: 15),
+                          child: Row(
+                            children: [
+                              Text(
+                                cartItem.name.value,
+                                style: TextStyle(
                                     color:isDark?Colors.white: Color(0xFF1A1817),
                                     fontSize: 18,
                                     fontWeight: FontWeight.w400,
                                     fontFamily: "Poppins"
-                                  ),
                                 ),
-                                SizedBox(width: 16,),
-                                GestureDetector(
-                                  onTap: ()=>controller.removeFromCart(cartItem),
-                                  child: Container(
-                                    height: 24,
-                                    width: 24,
-                                    decoration: BoxDecoration(
-                                      color: Color(0xFFE04444),
-                                      borderRadius: BorderRadius.circular(18),
-                                    ),
-                                    child: Icon(Icons.close, color: Colors.white),
+                              ),
+                              SizedBox(width: 16,),
+                              GestureDetector(
+                                onTap: ()=>controller.removeFromCart(cartItem),
+                                child: Container(
+                                  height: 24,
+                                  width: 24,
+                                  decoration: BoxDecoration(
+                                    color: Color(0xFFE04444),
+                                    borderRadius: BorderRadius.circular(18),
                                   ),
-                                )
-                              ],
-                            ),
-                          ),
-                          SizedBox(height: 12,),
-                          Row(
-                            children: [
-                              Text(
-                                "₹${cartItem.price.value.toInt()}",
-                                style: TextStyle(
-                                    color: isDark?Colors.white:Color(0xFf1A1817),
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w800,
-                                    fontFamily: "Poppins"
+                                  child: Icon(Icons.close, color: Colors.white),
                                 ),
                               )
                             ],
                           ),
-                          SizedBox(height: 12,),
-                          Row(
-                            children: [
-                              GestureDetector(
-                                onTap: (){
-                                  if(cartItem.qty.value<1){
-                                    cartItem.qty.value--;
-                                    controller.totalPrice.value=controller.totalPrice.value-cartItem.price.value;
-                                  }
+                        ),
+                        SizedBox(height: 12,),
+                        Row(
+                          children: [
+                            Text(
+                              "₹${cartItem.price.value.toInt()}",
+                              style: TextStyle(
+                                  color: isDark?Colors.white:Color(0xFf1A1817),
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w800,
+                                  fontFamily: "Poppins"
+                              ),
+                            )
+                          ],
+                        ),
+                        SizedBox(height: 12,),
+                        Row(
+                          children: [
+                            GestureDetector(
+                              onTap: (){
+                                if(cartItem.qty.value<1){
+                                  cartItem.qty.value--;
+                                  controller.totalPrice.value=controller.totalPrice.value-cartItem.price.value;
+                                }
 
-                                },
-                                child: Container(
-                                  height: 24,
-                                  width: 24,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(18),
-                                  ),
-                                  child: Icon(Icons.remove, color: isDark?Colors.white:Colors.black),
+                              },
+                              child: Container(
+                                height: 24,
+                                width: 24,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(18),
                                 ),
+                                child: Icon(Icons.remove, color: isDark?Colors.white:Colors.black),
                               ),
-                              SizedBox(width: 12,),
-                              Obx(()=>Text(
-                                "${cartItem.qty.value}",
-                                style: TextStyle(
-                                    color: isDark?Colors.white:Color(0xFf1A1817),
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w800,
-                                    fontFamily: "Poppins"
+                            ),
+                            SizedBox(width: 12,),
+                            Obx(()=>Text(
+                              "${cartItem.qty.value}",
+                              style: TextStyle(
+                                  color: isDark?Colors.white:Color(0xFf1A1817),
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w800,
+                                  fontFamily: "Poppins"
+                              ),
+                            ),
+                            ),
+                            SizedBox(width: 12,),
+                            GestureDetector(
+                              onTap: (){
+                                final price = cartItem.price;
+                                final currentQty = cartItem.qty.value;
+
+                                // Determine the max quantity based on the price
+                                int maxQty;
+                                if (price <= 2) {
+                                  maxQty = 4;
+                                } else if (price >= 3 && price <= 5) {
+                                  maxQty = 2;
+                                } else {
+                                  maxQty = 1;
+                                }
+
+                                // Only increment if current quantity is less than max allowed
+                                if (currentQty < maxQty) {
+                                  cartItem.qty.value++;
+                                  controller.totalPrice.value=controller.totalPrice.value+cartItem.price.value;
+                                }else{
+                                  Get.snackbar("Max Orderable","Quantity is ${maxQty.toString()}",
+                                    snackPosition: SnackPosition.BOTTOM,
+                                    backgroundColor: Colors.red,
+                                    colorText: Colors.white,
+                                  );
+                                }
+                              },
+                              child: Container(
+                                height: 24,
+                                width: 24,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(18),
                                 ),
+                                child: Icon(Icons.add, color: isDark?Colors.white:Colors.black),
                               ),
-                              ),
-                              SizedBox(width: 12,),
-                              GestureDetector(
-                                onTap: (){
-                                  final price = cartItem.price;
-                                  final currentQty = cartItem.qty.value;
+                            ),
 
-                                  // Determine the max quantity based on the price
-                                  int maxQty;
-                                  if (price <= 2) {
-                                    maxQty = 4;
-                                  } else if (price >= 3 && price <= 5) {
-                                    maxQty = 2;
-                                  } else {
-                                    maxQty = 1;
-                                  }
-
-                                  // Only increment if current quantity is less than max allowed
-                                  if (currentQty < maxQty) {
-                                    cartItem.qty.value++;
-                                    controller.totalPrice.value=controller.totalPrice.value+cartItem.price.value;
-                                  }else{
-                                    Get.snackbar("Max Orderable","Quantity is ${maxQty.toString()}",
-                                      snackPosition: SnackPosition.BOTTOM,
-                                      backgroundColor: Colors.red,
-                                      colorText: Colors.white,
-                                    );
-                                  }
-                                },
-                                child: Container(
-                                  height: 24,
-                                  width: 24,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(18),
-                                  ),
-                                  child: Icon(Icons.add, color: isDark?Colors.white:Colors.black),
-                                ),
-                              ),
-
-                            ],
-                          )
-                        ],
-                      ),
+                          ],
+                        )
+                      ],
+                    ),
 
 
-                    ],
-                  ) ,
-                );
-              },
-            ),
+                  ],
+                ) ,
+              );
+            },
+          ),
           ),
         ),
       ) ,

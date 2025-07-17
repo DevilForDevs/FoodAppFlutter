@@ -7,6 +7,7 @@ import 'package:jalebi_shop_flutter/comman/networkings.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/commans/database.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:synchronized/synchronized.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ChatMessage {
   final String text;
@@ -25,12 +26,12 @@ class ChatMessage {
 
 class ChatController extends GetxController {
   var messages = <ChatMessage>[].obs;
+  final visibleChatIds=<int>[];
   final inputController=TextEditingController();
   final messageText = ''.obs;
   var token="".obs;
-  final reciever=7.obs;
+  final reciever=6.obs;
   Timer? _syncTimer;
-  final visibleChatIds = <int>[];
   final lock = Lock();
   @override
   Future<void> onInit() async {
@@ -41,7 +42,6 @@ class ChatController extends GetxController {
     for(ChatMessage chat in messages_){
       messages.add(chat);
     }
-
     if (credentials != null) {
       final decodedJson = jsonDecode(credentials);
       token.value = decodedJson["token"];
@@ -51,33 +51,67 @@ class ChatController extends GetxController {
 
   Future<void> sendMessage() async {
     final response=await syncMessages(chatWithId: reciever.value, bearerToken: token.value,newMessage:inputController.text);
-    if(response.toString().contains("incomingMessages")){
-      final outgoingmessage=ChatMessage(text: inputController.text, chatId: 0, isUser: true, isSeen: 0, timestamp: "11,july",);
-      CartDatabase.insertMessage(outgoingmessage);
-      messages.add(outgoingmessage);
-      inputController.clear();
+    final responseJson=jsonDecode(response.toString());
+
+    if(responseJson.containsKey('insertedChatId')){
+      if(responseJson["insertedChatId"]==-1){
+        print("server failure");
+      }else{
+        final outgoingmessage=ChatMessage(text: inputController.text, chatId:responseJson["insertedChatId"], isUser: true, isSeen: 0, timestamp: "11,july",);
+        CartDatabase.insertMessage(outgoingmessage);
+        messages.add(outgoingmessage);
+        inputController.clear();
+      }
+
+    }
+
+
+  }
+  Future<void> openDialPad() async {
+    final Uri uri = Uri(scheme: 'tel', path: "7632975366");
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri);
+    } else {
+      throw 'Could not launch $uri';
     }
   }
 
-  Future<void> sync_messages() async {
+  Future<void> sendSeenIds(int chatId)async{
     final response = await syncMessages(
-      chatWithId: reciever.value,
-      bearerToken: token.value,
-      seenIds: visibleChatIds
+        chatWithId: reciever.value,
+        bearerToken: token.value,
+        seenIds: [chatId]
     );
+    CartDatabase.updateSeenStatus(messageId: chatId, isSeen: 2);
+  }
 
+  Future<void> sync_messages() async {
+    late List<int> seenIdsCopy;
 
-    await lock.synchronized(() async {
-      for(int chat_m_id in visibleChatIds){
-        CartDatabase.updateSeenStatus(messageId: chat_m_id, isSeen: 2);
-      }
+    await lock.synchronized(() {
+      // Safely copy visibleChatIds
+      seenIdsCopy = List<int>.from(visibleChatIds);
+      // Clear immediately so we don't send them again
       visibleChatIds.clear();
     });
 
+    // Now use the snapshot safely outside the lock
+    final response = await syncMessages(
+      chatWithId: reciever.value,
+      bearerToken: token.value,
+      seenIds: seenIdsCopy,
+    );
+
+    // Optionally update local database
+    for (int m_chat_id in seenIdsCopy) {
+      CartDatabase.updateSeenStatus(messageId: m_chat_id, isSeen: 2);
+    }
+
     final responseJson = jsonDecode(response.toString());
-    final unSeenMessages = responseJson["incomingMessages"] as List;
-    final seen_chat_ids = responseJson["theirSeenMessageIds"] as List;
-    final deliveredToThemMessageIds = responseJson["deliveredToThemMessageIds"] as List;
+    final List<dynamic> unSeenMessages = responseJson["serverToDeviceMessage"] as List<dynamic>? ?? [];
+    final List<dynamic> seen_chat_ids = responseJson["theirSeenMessageIds"] as List<dynamic>? ?? [];
+    final List<dynamic> deliveredToThemMessageIds = responseJson["deliveredToThemMessageIds"] as List<dynamic>? ?? [];
+
 
     for (var msg in unSeenMessages) {
       final mMessage=ChatMessage(
@@ -87,11 +121,16 @@ class ChatController extends GetxController {
         isSeen: 1,
         timestamp:msg['created_at'].toString(),
       );
+      print(msg);
+      print("++++++++++++++++++++++++++++");
       final insertedChat= await CartDatabase.insertMessage(mMessage);
+      print("msg from server inserted");
       messages.add(mMessage);
     }
-    ////
+
     for (var seenId in seen_chat_ids) {
+      print("seen ids");
+      print(seenId);
         final idx = messages.indexWhere((m) => m.chatId == seenId);
         if (idx != -1) {
           messages[idx] = ChatMessage(
@@ -106,8 +145,9 @@ class ChatController extends GetxController {
 
     }
     for(var deliveredToThem in deliveredToThemMessageIds){
+      print(deliveredToThem);
       final idx = messages.indexWhere((m) => m.chatId ==deliveredToThem);
-      if (idx != -1) {
+      if (idx != -1 && messages[idx].isSeen != 1) {
         messages[idx] = ChatMessage(
           text: messages[idx].text,
           chatId: messages[idx].chatId,
@@ -116,6 +156,7 @@ class ChatController extends GetxController {
           timestamp: messages[idx].timestamp,
         );
         CartDatabase.updateSeenStatus(messageId: messages[idx].chatId, isSeen: 1);
+        print("seen updated");
       }
 
     }
@@ -123,8 +164,11 @@ class ChatController extends GetxController {
   @override
   void onClose() {
     _syncTimer?.cancel();
+    print("message controller cloased");
     super.onClose();
   }
+
+
 
 
 }

@@ -1,7 +1,12 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:dio/dio.dart';
 import 'package:http/http.dart' as http;
-
+import 'package:http_parser/http_parser.dart';
+import 'package:path/path.dart' as path;
+import 'package:mime/mime.dart';
+import 'package:path_provider/path_provider.dart';
 
 
 // Shared domain variable
@@ -80,7 +85,7 @@ Future<Map<String, dynamic>> sendOtp(String userEmail, String userType) async {
     );
     return jsonDecode(response.body);
   } catch (e) {
-    return {'error': 'Exception occurred', 'message': e.toString()};
+    return {'error message': e.toString()};
   }
 }
 
@@ -126,7 +131,6 @@ Future<Map<String, dynamic>> getAddress(String userId, String token) async {
 }
 
 Future<String> updateAvatar(
-  String userId,
   String avatarUrl,
   String token,
 ) async {
@@ -138,7 +142,7 @@ Future<String> updateAvatar(
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $token',
       },
-      body: jsonEncode({'user_id': userId, 'avatar': avatarUrl}),
+      body: jsonEncode({'avatar_url': avatarUrl}),
     );
     return response.body;
   } catch (e) {
@@ -200,6 +204,26 @@ Future<Object> getRestrictedItems(String userId, String token) async {
     } else {
       return {'error_message': 'Unexpected response type'};
     }
+  } catch (e) {
+    return {'error_message': e.toString()};
+  }
+}
+
+Future<Object> getAllItems(String userId, String token) async {
+  final url = Uri.parse('$domain/api/getItems');
+
+  try {
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+
+    );
+    return jsonDecode(response.body);
+
+
   } catch (e) {
     return {'error_message': e.toString()};
   }
@@ -279,28 +303,226 @@ Future<Object> syncMessages({
   List<int> seenIds = const [],
   required String bearerToken,
 }) async {
-
-  try{
+  try {
     final url = Uri.parse('$domain/api/messageSync');
 
     final headers = {
       'Authorization': 'Bearer $bearerToken',
       'Accept': 'application/json',
+      'Content-Type': 'application/json', // ✅ very important
     };
 
-    final body = {
-      'chat_with': chatWithId.toString(),
-      if (newMessage != null && newMessage.isNotEmpty) 'message': newMessage,
-      if (seenIds.isNotEmpty) 'seen_ids': jsonEncode(seenIds),
-    };
+    final body = jsonEncode({ // ✅ encode entire body to JSON string
+      'chat_with': chatWithId,
+      'message': newMessage,
+      'seen_ids': seenIds, // ✅ this will become a proper JSON array
+    });
 
     final response = await http.post(url, headers: headers, body: body);
+
     return response.body;
-  }catch (e) {
+  } catch (e) {
+    return jsonEncode({
+      "error": e.toString(),
+    });
+  }
+}
+Future<String> updateProfileName(String newName, String authToken) async {
+  final url = Uri.parse('$domain/api/updateProfileName');
+
+  try {
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $authToken', // if you're using Laravel Sanctum or Passport
+      },
+      body: json.encode({
+        'newName': newName,
+      }),
+    );
+    return response.body;
+
+
+  } catch (e) {
+    return jsonEncode({
+      "error message": e.toString(),
+    });
+  }
+}
+
+Future<String> updateProfileEmail(String newEmail, String authToken) async {
+  final url = Uri.parse('$domain/api/updateEmail');
+
+  try {
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $authToken', // if you're using Laravel Sanctum or Passport
+      },
+      body: json.encode({
+        'new_email':newEmail,
+      }),
+    );
+    return response.body;
+
+
+  } catch (e) {
+    return jsonEncode({
+      "error message": e.toString(),
+    });
+  }
+}
+
+Future<String> deleteAccount(String authToken) async {
+  final url = Uri.parse('$domain/api/deleteAccount');
+
+  try {
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $authToken', // if you're using Laravel Sanctum or Passport
+      },
+      body: json.encode({
+
+      }),
+    );
+    return response.body;
+
+  } catch (e) {
+    return jsonEncode({
+      "error message": e.toString(),
+    });
+  }
+}
+
+Future<void> avatarUpload({
+  required File file,
+  required String accessToken,
+  required int userId,
+  required void Function(int progress, String message) listener,
+}) async {
+  final dio = Dio();
+  final fileName = path.basename(file.path);
+  final mimeType = lookupMimeType(file.path) ?? 'application/octet-stream';
+
+  try {
+    final formData = FormData.fromMap({
+      'file': await MultipartFile.fromFile(
+        file.path,
+        filename: fileName,
+        contentType: MediaType.parse(mimeType),
+      ),
+      'metadata': jsonEncode({
+        'userId': userId,
+        'description': 'A nice picture',
+      })
+    });
+
+    final response = await dio.post(
+      '$domain/api/uploadImage',
+      data: formData,
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $accessToken', // <-- Add token here
+            'Content-Type': 'multipart/form-data',  // Optional, but recommended
+          },
+        ),
+      onSendProgress: (int sent, int total) {
+        final progress = ((sent / total) * 100).toInt();
+        listener(progress, 'Uploading');
+      },
+
+    );
+    if(response.statusCode==402){
+      print("Unauthorized");
+    }
+
+    if (response.statusCode == 200 && response.data is Map) {
+      final fileUrl = response.data['file_url'] ?? 'Upload failed';
+      listener(100, fileUrl);
+    } else {
+      listener(-1, 'Failed To Upload');
+    }
+  } catch (e) {
+    listener(-1, 'Failed To Upload');
+    print(e);
+  }
+}
+
+Future<String?> downloadFile(
+    String url, {
+      required String savePath,
+      Function(int percent)? onProgress,
+    }) async {
+  try {
+    final uri = Uri.parse(url);
+    final request = http.Request('GET', uri);
+    final response = await http.Client().send(request);
+
+    if (response.statusCode != 200) {
+      print("Failed to download file: ${response.statusCode}");
+      return null;
+    }
+
+    final contentLength = response.contentLength ?? 0;
+    final file = File(savePath);
+    final sink = file.openWrite();
+
+    int downloaded = 0;
+    await for (var chunk in response.stream) {
+      downloaded += chunk.length;
+      sink.add(chunk);
+
+      if (contentLength != 0 && onProgress != null) {
+        final percent = ((downloaded / contentLength) * 100).toInt();
+        onProgress(percent);
+      }
+    }
+
+    await sink.flush();
+    await sink.close();
+
+    return savePath;
+  } catch (e) {
+    print("Download error: $e");
+    return null;
+  }
+}
+
+Future<Object> searchItems(String token,String query) async {
+  final url = Uri.parse('$domain/api/search');
+
+  try {
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode({
+        "query":query
+
+      }),
+    );
+
+    final decoded = jsonDecode(response.body);
+
+    if (decoded is List) {
+      return decoded; // List of items
+    } else if (decoded is Map) {
+      return decoded; // Possibly an error or object
+    } else {
+      return {'error_message': 'Unexpected response type'};
+    }
+  } catch (e) {
     return {'error_message': e.toString()};
   }
-
-
 }
+
+
+
 
 

@@ -7,6 +7,7 @@ import 'package:jalebi_shop_flutter/layout/native/mobile/screens/product_model.d
 
 import '../layout/native/mobile/screens/favourite_screen/favourite_screen.dart';
 import '../layout/native/mobile/screens/product_detail_screen/widgets/food_detail_screen.dart';
+import '../main.dart';
 class PrimaryItemCard extends StatelessWidget {
   const PrimaryItemCard({
     super.key,
@@ -129,6 +130,7 @@ class PrimaryItemCard extends StatelessWidget {
       ),
     );
   }
+
 
 
 

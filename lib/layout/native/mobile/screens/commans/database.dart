@@ -15,7 +15,7 @@ class CartDatabase {
 
     _db = await openDatabase(
       path,
-      version: 2,
+      version: 1,
       onCreate: (db, version) async {
         // Create cart table
         await db.execute('''
@@ -176,7 +176,7 @@ class CartDatabase {
     await db.update(
       'chat',
       {'is_seen': isSeen},
-      where: 'id = ?',
+      where: 'chat_id = ?',
       whereArgs: [messageId],
     );
   }

@@ -13,7 +13,10 @@ import '../password_reset/reset_password_screen.dart';
 import '../signup_screen/widgets/whatsapp_otp_style.dart';
 
 class VerifyEmailScreen extends StatelessWidget {
-  const VerifyEmailScreen({super.key});
+  const VerifyEmailScreen({super.key, required this.emailUpdate, required this.displayEmail, required this.otp});
+  final bool emailUpdate;
+  final String displayEmail;
+  final String otp;
 
   @override
   Widget build(BuildContext context) {
@@ -58,7 +61,7 @@ class VerifyEmailScreen extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    "on ${signupController.emailController.text}",
+                    "on $displayEmail",
                     style: TextStyle(
                       fontSize: 16,
                       fontFamily: "Poppins",
@@ -81,49 +84,79 @@ class VerifyEmailScreen extends StatelessWidget {
                       color: Colors.black,
                     ),
                   ),
-                  Text(
-                    " Send again",
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontFamily: "Poppins",
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFFE53935),
+                  GestureDetector(
+                    onTap: (){
+                      controller.sendOtpAgain(displayEmail);
+                    },
+                    child: Text(
+                      " Send again",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontFamily: "Poppins",
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFFE53935),
+                      ),
                     ),
                   ),
                 ],
               ),
               SizedBox(height: 24,),
               Center(
-                child: Text(
-                  "Resend in 32",
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontFamily: "Poppins",
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black,
+                child: Obx(()=> Text(
+                    controller.countdown.value>0?"Resend in ${controller.countdown.value}":"",
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontFamily: "Poppins",
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black,
+                    ),
                   ),
                 ),
               ),
               WhatsAppOtpField(),
               SizedBox(height: 30,),
               Center(child: CustomActionButton(label: "Verify", backgroundColor:Color(0xFFE53935),onPressed: (){
-                if(controller.fullOtp==signupController.otp.toString()){
+                if(controller.fullOtp==otp){
                   void handleSendOtp() async {
-                    if(signupController.passwordReset.value){
-                      Get.to(ResetPasswordScreen());
+                    if(emailUpdate){
+                      final prefs = await SharedPreferences.getInstance();
+                      final credentials = prefs.getString('credentials');
+
+                      if (credentials != null) {
+                        final decodedJson = jsonDecode(credentials);
+
+                        final authToken = decodedJson["token"];
+                        final response=await updateProfileEmail(displayEmail.trim(), authToken);
+                        if(response.contains("Duplicate entry")){
+
+                        }else{
+
+                          final decodedJson = jsonDecode(credentials);
+                          decodedJson["user"]["email"] =displayEmail;
+                          await prefs.setString('credentials', jsonEncode(decodedJson));
+                          Get.back();
+
+                        }
+                       
+                      }
+
                     }else{
-                      final response = await registerUser(
-                        signupController.nameController.text.trim(),
-                        signupController.emailController.text.trim(),
-                        signupController.passwordController.text,
-                        "individual",
-                      );
-                      if (response.containsKey("token")) {
-                        final prefs = await SharedPreferences.getInstance();
-                        await prefs.setString('credentials',response.toString() );
-                        Get.to(FoodScreen());
-                      } else {
-                        print("Registration failed: ${response['error'] ?? 'Unknown error'}");
+                      if(signupController.passwordReset.value){
+                        Get.to(ResetPasswordScreen(email: displayEmail,));
+                      }else{
+                        final response = await registerUser(
+                          signupController.nameController.text.trim(),
+                          signupController.emailController.text.trim(),
+                          signupController.passwordController.text,
+                          "individual",
+                        );
+                        if (response.containsKey("token")) {
+                          final prefs = await SharedPreferences.getInstance();
+                          await prefs.setString('credentials',response.toString() );
+                          Get.to(FoodScreen());
+                        } else {
+                          print(response);
+                        }
                       }
                     }
                   }

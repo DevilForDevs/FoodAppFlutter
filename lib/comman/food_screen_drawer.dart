@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jalebi_shop_flutter/layout/native/mobile/screens/personal_info_screen/personal_info_screen.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/profile_controller.dart';
 
 import '../layout/native/mobile/screens/address_screen/address_screen.dart';
@@ -52,15 +53,17 @@ class FoodScreenDrawer extends StatelessWidget {
                       SizedBox(
                         height: 50,
                         width: 50,
-                        child: ClipOval(
-                          child: Image.network(
-                            "https://avatar.iran.liara.run/public/50",
-                            fit: BoxFit.cover,
+                        child: Obx(
+                              () => CircleAvatar(
+                            radius: 40,
+                            backgroundImage: controller.pickedImage.value != null
+                                ? FileImage(controller.pickedImage.value!) // Use the picked image if available
+                                : AssetImage('assets/person.png') as ImageProvider, // Use the default image if not
                           ),
                         ),
                       ),
                       Spacer(),
-                      IconButton(onPressed: (){}, icon:Icon(Icons.edit,size: 18,color: Colors.white))
+                      IconButton(onPressed: ()=>Get.to(PersonalInfoScreen()), icon:Icon(Icons.edit,size: 18,color: Colors.white))
 
                     ],
                   ),

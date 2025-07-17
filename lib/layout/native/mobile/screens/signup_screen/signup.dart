@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
+import 'package:jalebi_shop_flutter/comman/log_out_dialog.dart';
 import 'package:jalebi_shop_flutter/comman/networkings.dart';
 import 'package:jalebi_shop_flutter/comman/sys_utilities.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/home_screen/home_screen.dart';
@@ -142,18 +144,27 @@ class SignupScreen extends StatelessWidget {
 
                     SizedBox(height: 16),
                     Center(child: CustomActionButton(label: "SIGN UP", onPressed: (){
+                      showLoadingDialog(context);
                       if(controller.validateInputs()){
                         void handleSendOtp() async {
                           final response = await sendOtp(controller.emailController.text.trim(), "new");
                           if (response.containsKey('otp')) {
                             controller.otp.value=int.tryParse(response['otp'].toString())!;
-                            Get.to(VerifyEmailScreen());
+                            Get.back();
+                            Get.to(VerifyEmailScreen(emailUpdate: false,displayEmail: controller.emailController.text,otp:controller.otp.value.toString() ,));
                           } else {
-                            // Handle error
-                            print("Error: ${response['message'] ?? 'Unknown error'}");
+                            Fluttertoast.showToast(
+                              msg: response["error message"],
+                              toastLength: Toast.LENGTH_SHORT,
+                              gravity: ToastGravity.BOTTOM,
+                              fontSize: 16.0,
+                            );
+                            Get.back();
                           }
                         }
                         handleSendOtp();
+                      }else{
+                        Get.back();
                       }
                     },backgroundColor: Color(0xFFE53935),)),
                     SizedBox(height: 24,),

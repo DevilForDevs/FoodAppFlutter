@@ -17,8 +17,8 @@ class ProfileListItem extends StatelessWidget {
         Container(
           width: 40,
           height: 40,
-          decoration: const BoxDecoration(
-            color: Color(0xFF212121),
+          decoration:  BoxDecoration(
+            color: isDark?Color(0xFF212121):Colors.white,
             shape: BoxShape.circle,
           ),
           child: Icon(icon,color:iconColor),

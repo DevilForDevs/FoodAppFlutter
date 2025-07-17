@@ -1,12 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:jalebi_shop_flutter/comman/sys_utilities.dart';
+import 'package:jalebi_shop_flutter/layout/native/mobile/screens/address_model.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/check_out_screen/check_out_screen.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/commans/custom_button.dart';
+import 'package:jalebi_shop_flutter/layout/native/mobile/screens/place_order_screen/place_order_screen_controller.dart';
+import 'package:jalebi_shop_flutter/layout/native/mobile/screens/place_order_screen/widgets/order_address_item.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/product_model.dart';
 
+import '../address_screen/address_screen.dart';
 import '../addresses_list/address_screen_controller.dart';
 import '../commans/custom_app_bar.dart';
+import '../profile_controller.dart';
 import '../sucess_screen/sucess_screen.dart';
 
 class PlaceOrderScreen extends StatelessWidget {
@@ -17,11 +24,13 @@ class PlaceOrderScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = isDarkMode(context);
-    final controller = Get.put(AddressScreenController());
+    final controller=Get.put(PlaceOrderScreenController());
+
+    final profilecontoller = Get.find<ProfileController>();
 
     return SafeArea(
       child: Scaffold(
-        appBar: CustomAppBar(title: "Order Details"),
+        appBar: CustomAppBar(title: "Order"),
         body: ListView(
           padding: EdgeInsets.symmetric(horizontal: 24),
           children: [
@@ -72,7 +81,13 @@ class PlaceOrderScreen extends StatelessWidget {
             SizedBox(
               width: double.infinity,
               child: TextField(
-                controller: controller.phone,
+                controller:controller.phone,
+                keyboardType: TextInputType.number,
+                maxLength: 12,// Show number keyboard
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly,
+                  LengthLimitingTextInputFormatter(12),// Only allow digits (0-9)
+                ],
                 decoration: InputDecoration(
                   filled: true,
                   fillColor: isDark ? Color(0xFF303030) : Color(0xFFF0F5FA),
@@ -91,60 +106,27 @@ class PlaceOrderScreen extends StatelessWidget {
             Text("Select Address", style: TextStyle(fontWeight: FontWeight.w600)),
             SizedBox(height: 8),
 
-            Obx(() => ListView.builder(
+            Obx(() => controller.addressList.isEmpty?Column(
+              children: [
+                Text("No addresses saved yet"),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text("Add Address"),
+                    IconButton(onPressed: (){
+                      Get.to(AddressScreen(addressModel: profilecontoller.addresModel));
+                    }, icon:Icon(Icons.add,color: Color(0xFFFC6E2A),)),
+                  ],
+                )
+
+              ],
+            ):ListView.builder(
               shrinkWrap: true,
               physics: NeverScrollableScrollPhysics(),
               itemCount: controller.addressList.length,
               itemBuilder: (context, index) {
                 final address = controller.addressList[index];
-                return Card(
-                  margin: const EdgeInsets.symmetric(vertical: 8),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  elevation: 2,
-                  color: isDark ? const Color(0xFF303030) : Colors.white,
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Text(
-                                address.addressType.value,
-                                style: const TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                            if(controller.selectedAddressIndex.value==index)Container(
-                              height: 24,
-                              width: 24,
-                              margin: EdgeInsets.symmetric(horizontal: 10),
-                              decoration: BoxDecoration(
-                                color: Color(0xFFFF7622),
-                                shape: BoxShape.circle,
-                              ),
-                              child: Icon(Icons.check, color: Colors.white),
-                            ),
-                            IconButton(
-                              icon: const Icon(Icons.edit, color: Color(0xFFFF7622)),
-                              onPressed: () => controller.editAddress(index),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 4),
-                        GestureDetector(
-                            onTap:(){
-                              controller.selectedAddressIndex.value=index;
-                            },
-                            child: Text(address.longAddress.value)
-                        ),
-                      ],
-                    ),
-                  ),
-                );
+                return ProductDetailAddressItem(controller: controller,index: index,);
               },
             )),
           ],
@@ -153,14 +135,34 @@ class PlaceOrderScreen extends StatelessWidget {
           padding: EdgeInsets.symmetric(horizontal: 24,vertical: 24),
           child: CustomActionButton(label: "CheckOut", onPressed: (){
             if(controller.phone.text.isNotEmpty){
-              Get.to(CheckOutScreen( totalPrice:food.price,payFailure: (){
-                print("payment failure");
-              }, paySuccess: (tId) async {
-                final isOrderPlaced=await controller.placeOrder(food, quantity, tId);
-                if(isOrderPlaced.contains("successfully")){
-                  Get.off(() => SucessScreen());
-                }
-              }));
+              final mobileRegex = RegExp(r"^(0|91)?[6-9][0-9]{9}$");
+
+              if (mobileRegex.hasMatch(controller.phone.text)) {
+                Get.to(CheckOutScreen( totalPrice:food.price,payFailure: (){
+                  print("payment failure");
+                }, paySuccess: (tId) async {
+                  print("placing");
+                  /*final isOrderPlaced=await controller.placeOrder(food, quantity, tId);
+                  if(isOrderPlaced.contains("successfully")){
+                    Get.off(() => SucessScreen());
+                  }*/
+                }));
+              } else {
+                Fluttertoast.showToast(
+                  msg: "Invalid mobile number",
+                  toastLength: Toast.LENGTH_SHORT,
+                  gravity: ToastGravity.BOTTOM,
+                  fontSize: 16.0,
+                );
+              }
+
+            }else{
+              Fluttertoast.showToast(
+                msg: "Phone Number is required",
+                toastLength: Toast.LENGTH_SHORT,
+                gravity: ToastGravity.BOTTOM,
+                fontSize: 16.0,
+              );
             }
           },backgroundColor: Color(0xFFFF7622)),
         ),
@@ -181,6 +183,8 @@ class PlaceOrderScreen extends StatelessWidget {
     );
   }
 }
+
+
 
 /**/
 

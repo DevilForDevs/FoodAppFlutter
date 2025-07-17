@@ -1,4 +1,5 @@
 
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 
 
@@ -29,34 +30,32 @@ class SignupScreenController extends GetxController {
     final confirmPassword = confirmPasswordController.text;
 
     if (name.isEmpty || email.isEmpty || password.isEmpty || confirmPassword.isEmpty) {
-      Get.snackbar(
-        'Error',
-        'All fields are required',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
+      Fluttertoast.showToast(
+        msg: "All fields are required",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        fontSize: 16.0,
       );
+
       return false;
     }
 
     if (password.length < 8) {
-      Get.snackbar(
-        'Error',
-        'Password must be at least 8 characters long',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
+      Fluttertoast.showToast(
+        msg: "Password must be at least 8 characters long",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        fontSize: 16.0,
       );
       return false;
     }
 
     if (password != confirmPassword) {
-      Get.snackbar(
-        'Error',
-        'Passwords do not match',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
+      Fluttertoast.showToast(
+        msg: "Passwords do not match",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        fontSize: 16.0,
       );
       return false;
     }

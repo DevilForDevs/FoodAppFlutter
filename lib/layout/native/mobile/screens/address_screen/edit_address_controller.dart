@@ -27,17 +27,11 @@ class EditAddressController extends  GetxController {
     retriveAddresses();
   }
 
-  Future<void> saveAddress(BuildContext context) async {
+  Future<void> saveAddress() async {
+    final pinRegex = RegExp(r"^[1-9][0-9]{2}\s?[0-9]{3}$");
     address.longAddress.value=longAddress.text;
     final response=await updateAddress(addressId.value.toString(),longAddress.text,city.text,pinCode.text,village.text,addressTypes[selectedIndex.value],token.value);
-    if(response.toLowerCase().contains('successfully') == true){
-      final prefs = await SharedPreferences.getInstance();
-      final cacheKey = 'cached_address_$userId';
-      await prefs.remove(cacheKey);
-      if (context.mounted) {
-        Navigator.pop(context); // 👈 go back
-      }
-    }
+
   }
   Future<void> retriveAddresses()async{
     final prefs = await SharedPreferences.getInstance();

@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jalebi_shop_flutter/comman/profile_list_item.dart';
 import 'package:jalebi_shop_flutter/comman/sys_utilities.dart';
+import 'package:jalebi_shop_flutter/layout/native/mobile/screens/address_model.dart';
+import 'package:jalebi_shop_flutter/layout/native/mobile/screens/address_screen/address_screen.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/addresses_list/address_screen_controller.dart';
+import 'package:jalebi_shop_flutter/layout/native/mobile/screens/addresses_list/widgets/address_item.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/commans/custom_app_bar.dart';
+import 'package:jalebi_shop_flutter/layout/native/mobile/screens/profile_controller.dart';
 
 class AddressListScreen extends StatelessWidget {
   const AddressListScreen({super.key});
@@ -11,51 +16,37 @@ class AddressListScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = Get.put(AddressScreenController());
     final isDark = isDarkMode(context);
+    final profilecontoller = Get.find<ProfileController>();
 
     return SafeArea(
       child: Scaffold(
         appBar: CustomAppBar(title: "Addresses"),
-        body: Obx(() => ListView.builder(
+        body: Obx(() => controller.addressList.isEmpty?Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text("You save not saved any address"),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  IconButton(onPressed: (){
+                    Get.to(AddressScreen(addressModel:profilecontoller.addresModel ));
+                  }, icon:Icon(Icons.add,color: Color(0xFFFC6E2A),)),
+                  Text("Add Address")
+                ],
+              )
+            ],
+          ),):ListView.builder(
           itemCount: controller.addressList.length,
           itemBuilder: (context, index) {
             final address = controller.addressList[index];
-            return Card(
-              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              elevation: 2,
-              color: isDark ? const Color(0xFF303030) : Colors.white,
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            address.addressType.value,
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.edit, color: Color(0xFFFF7622)),
-                          onPressed: () => controller.editAddress(index),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    Text(address.longAddress.value),
-                  ],
-                ),
-              ),
-            );
-          },
-        )),
+            return AddressItemView(address: address, controller: controller,index: index,);
+          }
+        ))
       ),
     );
   }
 }
+
 
