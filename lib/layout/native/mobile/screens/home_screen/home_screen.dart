@@ -1,7 +1,9 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
+import 'package:jalebi_shop_flutter/comman/sys_utilities.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/commans/custom_button.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/foods_screen/food_screen.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/home_screen/controllers/hide_password.dart';
@@ -10,6 +12,7 @@ import 'package:jalebi_shop_flutter/layout/native/mobile/screens/home_screen/wid
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/home_screen/widgets/fg_password.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/home_screen/widgets/signup_headings.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/home_screen/widgets/signup_sub_heading.dart';
+import 'package:jalebi_shop_flutter/layout/native/mobile/screens/qr_scanner_screen/qr_scan_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../../comman/log_out_dialog.dart';
@@ -24,6 +27,7 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = Get.put(HomeScreenController());
     final signupController = Get.put(SignupScreenController());
+    final isDark=isDarkMode(context);
     return Scaffold(
       body: SafeArea(
         child: Padding(
@@ -83,11 +87,13 @@ class HomeScreen extends StatelessWidget {
                       handleSendOtp();
 
                     }else{
-                      Get.snackbar("User Error", "Please Enter registered email",
-                        snackPosition: SnackPosition.BOTTOM,
-                        backgroundColor: Colors.orange,
-                        colorText: Colors.white,
+                      Fluttertoast.showToast(
+                        msg: "Please Enter registered email",
+                        toastLength: Toast.LENGTH_SHORT,
+                        gravity: ToastGravity.BOTTOM,
+                        fontSize: 16.0,
                       );
+
                     }
                   },),
                   SizedBox(height: 16),
@@ -107,33 +113,52 @@ class HomeScreen extends StatelessWidget {
                               hideLoadingDialog(context);
                               final prefs = await SharedPreferences.getInstance();
                               await prefs.setString('credentials', result); // stores entire JSON string
-                              Get.off(FoodScreen());
+                              Get.offAll(FoodScreen());
                             } else {
-                              Get.snackbar("Login Failed",result,
-                                snackPosition: SnackPosition.BOTTOM,
-                                backgroundColor: Colors.red,
-                                colorText: Colors.white,
+                              Fluttertoast.showToast(
+                                msg:result,
+                                toastLength: Toast.LENGTH_SHORT,
+                                gravity: ToastGravity.BOTTOM,
+                                fontSize: 16.0,
                               );
                               hideLoadingDialog(context);
                             }
 
                           } else {
-                            Get.snackbar("No Internet", "Please check your internet connection",
-                              snackPosition: SnackPosition.BOTTOM,
-                              backgroundColor: Colors.orange,
-                              colorText: Colors.white,
+                            Fluttertoast.showToast(
+                              msg:"Please check your internet connection",
+                              toastLength: Toast.LENGTH_SHORT,
+                              gravity: ToastGravity.BOTTOM,
+                              fontSize: 16.0,
                             );
                           }
                         }else{
-                          Get.snackbar("User Error", "Please Enter All Fields",
-                            snackPosition: SnackPosition.BOTTOM,
-                            backgroundColor: Colors.orange,
-                            colorText: Colors.white,
+                          Fluttertoast.showToast(
+                            msg:"Please Enter All Fields",
+                            toastLength: Toast.LENGTH_SHORT,
+                            gravity: ToastGravity.BOTTOM,
+                            fontSize: 16.0,
                           );
+
                         }
                       },
                     ),
                   ),
+                  SizedBox(height: 24,),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      IconButton(onPressed: ()=>Get.to(QRScannerPage()), icon: Icon(Icons.qr_code,size: 30,color:Color(0xFFE53935),)),
+                      Text(
+                          "Scan QR to Login",
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: isDark?Colors.white:Colors.black,
+                          fontWeight: FontWeight.w700
+                        ),
+                      )
+                    ],
+                  )
                 ],
               ),
             ],

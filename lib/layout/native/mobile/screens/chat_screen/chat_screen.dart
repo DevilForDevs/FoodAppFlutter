@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
 import 'package:jalebi_shop_flutter/comman/sys_utilities.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/commans/custom_app_bar.dart';
 import 'package:visibility_detector/visibility_detector.dart';
@@ -88,7 +87,6 @@ class ChatScreen extends StatelessWidget {
                   ),
                   child: Row(
                     children: [
-                      Icon(Icons.emoji_emotions_outlined, color: Colors.grey[700]),
                       const SizedBox(width: 10),
                       Expanded(
                         child: TextField(

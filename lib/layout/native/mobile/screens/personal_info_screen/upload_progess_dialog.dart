@@ -14,7 +14,7 @@ class UploadProgressDialog extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Obx(() {
-          final progress = controller.progress.value;
+          final progress = controller.mProgress.value;
           return Column(
             mainAxisSize: MainAxisSize.min,
             children: [

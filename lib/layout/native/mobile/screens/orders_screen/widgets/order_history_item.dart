@@ -18,6 +18,7 @@ class OrderHistoryItem extends StatelessWidget {
     final isDark=isDarkMode(context);
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 12),
+
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -35,7 +36,7 @@ class OrderHistoryItem extends StatelessWidget {
               ),
               SizedBox(width: 12,),
               Text(
-                "Completed",
+                orderItem.status,
                 style:TextStyle(
                     fontFamily: "Sen",
                     fontSize: 14,

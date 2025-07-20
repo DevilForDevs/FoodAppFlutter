@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jalebi_shop_flutter/comman/controllers/food_screen_drawer_controoler.dart';
+import 'package:jalebi_shop_flutter/comman/sys_utilities.dart';
+import 'package:jalebi_shop_flutter/layout/native/mobile/screens/credentials_controller.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/personal_info_screen/personal_info_screen.dart';
-import 'package:jalebi_shop_flutter/layout/native/mobile/screens/profile_controller.dart';
 
 import '../layout/native/mobile/screens/address_screen/address_screen.dart';
 import '../layout/native/mobile/screens/cart_screen/cart_screen.dart';
@@ -11,14 +13,16 @@ import 'log_out_dialog.dart';
 class FoodScreenDrawer extends StatelessWidget {
   const FoodScreenDrawer({
     super.key,
-    required this.isDark, required this.controller,
+
   });
 
-  final bool isDark;
-  final ProfileController controller;
+
 
   @override
   Widget build(BuildContext context) {
+    final isDark=isDarkMode(context);
+    final controller=Get.put(FoodScreenDrawerController());
+    final credentialController=Get.find<CredentialController>();
     return Drawer(
       child: ListView(
         padding: EdgeInsets.zero,
@@ -71,7 +75,7 @@ class FoodScreenDrawer extends StatelessWidget {
                     children: [
                       Expanded(
                         child: Obx(()=>Text(
-                            controller.addresModel.longAddress.value,
+                            controller.longAddress.value,
                             style: TextStyle(
                               fontFamily: "Poppins",
                               fontSize: 14,
@@ -86,7 +90,7 @@ class FoodScreenDrawer extends StatelessWidget {
                           ),
                         ),
                       ),
-                      IconButton(onPressed: ()=>Get.to(AddressScreen(addressModel: controller.addresModel,)), icon:Icon(Icons.edit,size: 18,color: Colors.white))
+                      IconButton(onPressed: ()=>Get.to(AddressScreen(addressIndex: credentialController.addresses.length-1,)), icon:Icon(Icons.edit,size: 18,color: Colors.white))
                     ],
                   ),
 

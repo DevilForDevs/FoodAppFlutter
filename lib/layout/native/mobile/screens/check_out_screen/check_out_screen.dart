@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
+import 'package:jalebi_shop_flutter/layout/native/mobile/screens/credentials_controller.dart';
 import '../commans/custom_app_bar.dart';
 import 'check_out_controller.dart';
 
@@ -12,6 +14,7 @@ class CheckOutScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final credentialController=Get.find<CredentialController>();
     final controller = Get.put(
       CheckoutController(
         onSuccess: (response) {
@@ -68,7 +71,16 @@ class CheckOutScreen extends StatelessWidget {
                     if (controller.selectedPaymentMethod.value == 'cod') {
                        paySuccess("cod");
                     } else {
-                      controller.openCheckout();
+                       if(credentialController.accountType.value=="individual"){
+                         controller.openCheckout();
+                       }else{
+                         Fluttertoast.showToast(
+                           msg: "Online Payment Not Available For this account",
+                           toastLength: Toast.LENGTH_SHORT,
+                           gravity: ToastGravity.BOTTOM,
+                           fontSize: 16.0,
+                         );
+                       }
                     }
                   },
                   style: ElevatedButton.styleFrom(

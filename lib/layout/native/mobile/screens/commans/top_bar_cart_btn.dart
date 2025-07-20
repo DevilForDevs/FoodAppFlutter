@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/cart_screen/cart_screen.dart';
-import 'package:jalebi_shop_flutter/layout/native/mobile/screens/commans/cart_button_controller.dart';
+import 'package:jalebi_shop_flutter/layout/native/mobile/screens/credentials_controller.dart';
 
 class TopBarCartButton extends StatelessWidget {
   const TopBarCartButton({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.put(CartButtonController());
+    final controller = Get.find<CredentialController>();
+
     return GestureDetector(
       onTap: () => Get.to(CartScreen()),
       child: Obx(()=>Stack(
@@ -24,7 +25,7 @@ class TopBarCartButton extends StatelessWidget {
               ),
               child: Image(image: AssetImage("assets/shopping-bag.png")),
             ),
-            if (controller.cartSize > 0)
+            if (controller.cartSize.value > 0)
               Positioned(
                 right: 2,
                 top: 2,

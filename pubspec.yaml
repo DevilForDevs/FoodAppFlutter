@@ -28,12 +28,25 @@ dependencies:
   path_provider: ^2.1.1
   visibility_detector: ^0.4.0
   synchronized: ^3.0.0
-  fluttertoast: ^8.2.4
+  fluttertoast: ^8.2.9
   image_picker: ^1.0.7
   dio: ^5.4.0
   http_parser: ^4.0.2
   mime: ^1.0.4
   url_launcher: ^6.2.5
+  flutter_launcher_icons: ^0.13.1
+  google_mobile_ads: ^4.0.0
+  firebase_core: ^2.30.0
+  firebase_app_installations: ^0.2.4+2
+  mobile_scanner: ^4.0.0
+
+
+
+
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/appIcon.png"
 
 
 
@@ -46,18 +59,13 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
-    - assets/onboardingImages/womanpizza.svg
     - assets/onb1.png
     - assets/onb2.png
     - assets/onb3.png
     - assets/shopping-bag.png
-    - assets/pizza.png
-    - assets/burgerphoto.png
-    - assets/product_detail.png
-    - assets/carttitem.png
-    - assets/orderedfoof.png
     - assets/person.png
     - assets/sucessconfti.png
+    - assets/me.jpg
   fonts:
     - family: Poppins
       fonts:

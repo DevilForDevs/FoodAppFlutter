@@ -109,7 +109,7 @@ class ChatController extends GetxController {
 
     final responseJson = jsonDecode(response.toString());
     final List<dynamic> unSeenMessages = responseJson["serverToDeviceMessage"] as List<dynamic>? ?? [];
-    final List<dynamic> seen_chat_ids = responseJson["theirSeenMessageIds"] as List<dynamic>? ?? [];
+    final List<dynamic> seenChatIds = responseJson["theirSeenMessageIds"] as List<dynamic>? ?? [];
     final List<dynamic> deliveredToThemMessageIds = responseJson["deliveredToThemMessageIds"] as List<dynamic>? ?? [];
 
 
@@ -128,7 +128,7 @@ class ChatController extends GetxController {
       messages.add(mMessage);
     }
 
-    for (var seenId in seen_chat_ids) {
+    for (var seenId in seenChatIds) {
       print("seen ids");
       print(seenId);
         final idx = messages.indexWhere((m) => m.chatId == seenId);

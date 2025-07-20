@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:jalebi_shop_flutter/comman/sys_utilities.dart';
 class ForgotPassword extends StatelessWidget {
   const ForgotPassword({
     super.key, required this.onPress,

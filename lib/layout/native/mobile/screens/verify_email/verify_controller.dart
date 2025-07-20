@@ -61,4 +61,18 @@ class VerifyEmailController extends GetxController {
       );
     }
   }
+  void clearOtp() {
+    // Clear the values in the RxnInt list
+    for (var i = 0; i < otp.length; i++) {
+      otp[i].value = null;
+    }
+
+    // Also clear the text in the text fields
+    for (var controller in textControllers) {
+      controller.clear();
+    }
+
+    // Optionally, focus the first field again
+    focusNodes[0].requestFocus();
+  }
 }

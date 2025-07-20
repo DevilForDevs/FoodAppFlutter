@@ -4,6 +4,8 @@ import 'package:jalebi_shop_flutter/layout/native/mobile/screens/verify_email/ve
 
 class WhatsAppOtpField extends StatelessWidget {
   final controller = Get.put(VerifyEmailController());
+
+  WhatsAppOtpField({super.key});
   @override
   Widget build(BuildContext context) {
     return Row(

@@ -4,15 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jalebi_shop_flutter/comman/log_out_dialog.dart';
 import 'package:jalebi_shop_flutter/comman/networkings.dart';
+import 'package:jalebi_shop_flutter/comman/sys_utilities.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/commans/custom_app_bar.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/commans/custom_button.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/home_screen/widgets/custom_text_field.dart';
-import 'package:jalebi_shop_flutter/layout/native/mobile/screens/home_screen/widgets/fg_password.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/password_reset/controller/reset_screen_controller.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../foods_screen/food_screen.dart';
-import '../signup_screen/controllers/signup_controler.dart';
 
 class ResetPasswordScreen extends StatelessWidget {
   const ResetPasswordScreen({super.key, required this.email});
@@ -21,6 +20,7 @@ class ResetPasswordScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.put(PasswordResetController());
+    final isDark=isDarkMode(context);
 
     return SafeArea(
       child: Scaffold(
@@ -46,7 +46,7 @@ class ResetPasswordScreen extends StatelessWidget {
                   fontSize: 16,
                   fontFamily: "Poppins",
                   fontWeight: FontWeight.w400,
-                  color: Color(0xFF32343E),
+                  color:isDark?Colors.white:  Color(0xFF32343E),
                 ),
               ),
               Text(
@@ -55,7 +55,7 @@ class ResetPasswordScreen extends StatelessWidget {
                   fontSize: 16,
                   fontFamily: "Poppins",
                   fontWeight: FontWeight.w400,
-                  color: Color(0xFF32343E),
+                  color:isDark?Colors.white:  Color(0xFF32343E),
                 ),
               ),
               SizedBox(height: 16),

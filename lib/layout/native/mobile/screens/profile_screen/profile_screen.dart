@@ -1,16 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
+
 import 'package:jalebi_shop_flutter/comman/sys_utilities.dart';
-import 'package:jalebi_shop_flutter/layout/native/mobile/screens/address_screen/address_screen.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/addresses_list/address_list_screen.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/cart_screen/cart_screen.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/chat_screen/chat_screen.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/commans/custom_app_bar.dart';
+import 'package:jalebi_shop_flutter/layout/native/mobile/screens/credentials_controller.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/favourite_screen/favourite_screen.dart';
-import 'package:jalebi_shop_flutter/layout/native/mobile/screens/notifications_screen/notification_scren.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/personal_info_screen/personal_info_screen.dart';
-import 'package:jalebi_shop_flutter/layout/native/mobile/screens/profile_controller.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/settings_screen/settings_screen.dart';
 
 import '../../../../../comman/log_out_dialog.dart';
@@ -22,7 +20,7 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark=isDarkMode(context);
-    final controller=Get.find<ProfileController>();
+    final controller=Get.find<CredentialController>();
     return SafeArea(
       child: Scaffold(
         appBar:CustomAppBar(

@@ -1,19 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:jalebi_shop_flutter/comman/sys_utilities.dart';import 'package:jalebi_shop_flutter/layout/native/mobile/screens/profile_controller.dart';
+import 'package:jalebi_shop_flutter/comman/sys_utilities.dart';
+import 'package:jalebi_shop_flutter/layout/native/mobile/screens/credentials_controller.dart';
 
 import '../../commans/top_bar_cart_btn.dart';
 
 class CustomShopAppBarAppBar extends StatelessWidget implements PreferredSizeWidget {
-  const CustomShopAppBarAppBar({super.key, required this.controller});
+  const CustomShopAppBarAppBar({super.key});
 
   @override
   Size get preferredSize => Size.fromHeight(70);
-  final ProfileController controller;
+
 
   @override
   Widget build(BuildContext context) {
     final isDark=isDarkMode(context);
+    final controller=Get.find<CredentialController>();
     return SafeArea(
       child: Container(
         height: preferredSize.height,
@@ -64,7 +66,7 @@ class CustomShopAppBarAppBar extends StatelessWidget implements PreferredSizeWid
                     crossAxisAlignment: CrossAxisAlignment.center, // align text & icon
                     children: [
                       Obx(()=>Text(
-                          controller.addresModel.street.value,
+                           controller.village.value,
                           style: TextStyle(fontSize: 14, color:isDark?Colors.white: Color(0xFF676767)),
                         ),
                       ),

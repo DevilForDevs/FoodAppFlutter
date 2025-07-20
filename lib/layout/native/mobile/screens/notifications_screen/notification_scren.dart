@@ -46,7 +46,7 @@ class NotificationScreen extends StatelessWidget {
                       ),
                       _buildSwitchTile(
                         title: "Delivery Notifications",
-                        subtitle: "Track order and delivery updates",
+                        subtitle: "Track order_tracking_screen and delivery updates",
                         value: controller.delivery.value,
                         onChanged: controller.notificationsEnabled.value
                             ? (val) => controller.delivery.value = val

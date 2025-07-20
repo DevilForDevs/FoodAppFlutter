@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:jalebi_shop_flutter/comman/sys_utilities.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/commans/custom_app_bar.dart';
-import 'package:jalebi_shop_flutter/layout/native/mobile/screens/home_screen/controllers/order_model.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/orders_screen/order_screen_controller.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/orders_screen/widgets/on_going_order_item.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/orders_screen/widgets/order_history_item.dart';
@@ -12,7 +10,6 @@ class OrdersScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark=isDarkMode(context);
     final controller=Get.put(OrderScreenController());
     return SafeArea(
       child: DefaultTabController(
@@ -43,12 +40,16 @@ class OrdersScreen extends StatelessWidget {
                   children: [
                     Obx(()=>controller.orders.isEmpty?Center(
                       child: Text("You have not ordered anything"),
+                    ):controller.orders[0].status!="confirmed"?Center(
+                      child: Text("No on going orders"),
                     ):ListView.builder(
                         itemCount:controller.orders.length,
                         itemBuilder: (context,index){
                           final orderItem=controller.orders[index];
-
-                          return OnGoingOrderItem(orderItem: orderItem,index: index,);
+                          if(orderItem.status=="confirmed"){
+                            return OnGoingOrderItem(orderItem: orderItem,index: index,ocontoller: controller,);
+                          }
+                          return null;
                         }
                     ),
                     ),
@@ -59,7 +60,10 @@ class OrdersScreen extends StatelessWidget {
                         itemCount:controller.orders.length,
                         itemBuilder: (context,index){
                           final orderItem=controller.orders[index];
-                          return OrderHistoryItem(orderItem: orderItem,index: index,);
+                          if(orderItem.status!="confirmed"){
+                            return OrderHistoryItem(orderItem: orderItem,index: index,);
+                          }
+                          return null;
                         }
                     ),
                     ),

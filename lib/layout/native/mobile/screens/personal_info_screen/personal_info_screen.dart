@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/commans/custom_app_bar.dart';
-import 'package:jalebi_shop_flutter/layout/native/mobile/screens/password_reset/reset_password_screen.dart';
-import '../profile_controller.dart';
+import 'package:jalebi_shop_flutter/layout/native/mobile/screens/credentials_controller.dart';
 import 'personal_info_controller.dart';
 
 class PersonalInfoScreen extends StatelessWidget {
@@ -12,7 +11,7 @@ class PersonalInfoScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.put(PersonalInfoController());
-    final profileController = Get.find<ProfileController>();
+    final profileController = Get.find<CredentialController>();
     return SafeArea(
       child: Scaffold(
         appBar: CustomAppBar(
@@ -42,7 +41,16 @@ class PersonalInfoScreen extends StatelessWidget {
                           radius: 15,
                           backgroundColor: Color(0xFFFF7622),
                           child: IconButton(onPressed:(){
-                            controller.pickImage();
+                            if(profileController.accountType.value=="individual"){
+                              controller.pickImage();
+                            }else{
+                              Fluttertoast.showToast(
+                                msg: "Account not avatar upload",
+                                toastLength: Toast.LENGTH_SHORT,
+                                gravity: ToastGravity.BOTTOM,
+                                fontSize: 16.0,
+                              );
+                            }
 
                           }, icon: Icon(Icons.edit, size: 16, color: Colors.white)),
                         ),
@@ -84,7 +92,18 @@ class PersonalInfoScreen extends StatelessWidget {
                 Obx(() {
                   return controller.isEditing.value
                       ? ElevatedButton(
-                    onPressed: controller.saveChanges,
+                    onPressed:(){
+                      if(profileController.accountType.value=="individual"){
+                        controller.saveChanges();
+                      }else{
+                        Fluttertoast.showToast(
+                          msg: "Account not support Editing",
+                          toastLength: Toast.LENGTH_SHORT,
+                          gravity: ToastGravity.BOTTOM,
+                          fontSize: 16.0,
+                        );
+                      }
+                    },
                     style: ElevatedButton.styleFrom(
                       minimumSize: const Size(double.infinity, 48),backgroundColor: Color(0xFFFF7622)
                     ),
@@ -95,7 +114,18 @@ class PersonalInfoScreen extends StatelessWidget {
                 SizedBox(height: 24,),
                 GestureDetector(
                   onTap: (){
-                    controller.updatePassword();
+
+                    if(profileController.accountType.value=="individual"){
+                      controller.updatePassword();
+                    }else{
+                      Fluttertoast.showToast(
+                        msg: "Account not support Password",
+                        toastLength: Toast.LENGTH_SHORT,
+                        gravity: ToastGravity.BOTTOM,
+                        fontSize: 16.0,
+                      );
+                    }
+
                   },
                   child: Text(
                     "Reset Password",

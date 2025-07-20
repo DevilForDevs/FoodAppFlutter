@@ -1,19 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:jalebi_shop_flutter/comman/log_out_dialog.dart';
+import 'package:jalebi_shop_flutter/comman/networkings.dart';
 import 'package:jalebi_shop_flutter/comman/sys_utilities.dart';
-
+import 'package:get/get.dart';
+import 'package:jalebi_shop_flutter/layout/native/mobile/screens/credentials_controller.dart';
+import 'package:jalebi_shop_flutter/layout/native/mobile/screens/order_tracking_screen/tracking_screen.dart';
+import 'package:jalebi_shop_flutter/layout/native/mobile/screens/orders_screen/order_screen_controller.dart';
 import '../../home_screen/controllers/order_model.dart';
 class OnGoingOrderItem extends StatelessWidget {
   const OnGoingOrderItem({
     super.key,
-    required this.orderItem, required this.index,
+    required this.orderItem, required this.index, required this.ocontoller,
   });
 
 
   final OrderModel orderItem;
   final int index;
+  final OrderScreenController ocontoller;
 
   @override
   Widget build(BuildContext context) {
+    final controller=Get.find<CredentialController>();
     final isDark=isDarkMode(context);
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 12),
@@ -125,9 +133,7 @@ class OnGoingOrderItem extends StatelessWidget {
                 width: 120,
                 height: 35, // Adjust height as per your design
                 child: ElevatedButton(
-                  onPressed: () {
-                    // Your action here
-                  },
+                  onPressed: ()=>Get.to(TrackingScreen(order: orderItem,)),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Color(0xFFFF7622), // FF7622
                     shape: RoundedRectangleBorder(
@@ -151,8 +157,49 @@ class OnGoingOrderItem extends StatelessWidget {
                 width: 120,
                 height: 35,
                 child: ElevatedButton(
-                  onPressed: () {
-                    // Your action here
+                  onPressed: () async {
+                    final confirm = await showDialog<bool>(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: Text("Confirm Cancellation"),
+                        content: Text("Are you sure you want to cancel this order_tracking_screen?"),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context, false),
+                            child: Text("No"),
+                          ),
+                          TextButton(
+                            onPressed: () => Navigator.pop(context, true),
+                            child: Text("Yes"),
+                          ),
+                        ],
+                      ),
+                    );
+
+
+                    if (confirm == true) {
+                      showLoadingDialog(context);
+                      final response = await cancelOrder(controller.token.value, orderItem.orderId);
+                      if (response.contains("successfully")) {
+                        Get.back();
+                        Fluttertoast.showToast(
+                          msg: "Order Canceled Successfully",
+                          toastLength: Toast.LENGTH_SHORT,
+                          gravity: ToastGravity.BOTTOM,
+                          fontSize: 16.0,
+                        );
+                        ocontoller.orders[index]=OrderModel(userId: orderItem.userId, address: orderItem.address, item:orderItem.item, contact: orderItem.contact, quantity: orderItem.quantity, price: orderItem.price, method:orderItem.method, status: "cancelled", image_url: orderItem.image_url, name: orderItem.name, orderId: orderItem.orderId, unit: orderItem.unit);
+                      } else {
+                        Get.back();
+                        print(response);
+                        Fluttertoast.showToast(
+                          msg: response,
+                          toastLength: Toast.LENGTH_SHORT,
+                          gravity: ToastGravity.BOTTOM,
+                          fontSize: 16.0,
+                        );
+                      }
+                    }
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.transparent, // Make background transparent

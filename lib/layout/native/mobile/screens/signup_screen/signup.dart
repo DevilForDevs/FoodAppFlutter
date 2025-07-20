@@ -6,9 +6,11 @@ import 'package:jalebi_shop_flutter/comman/networkings.dart';
 import 'package:jalebi_shop_flutter/comman/sys_utilities.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/home_screen/home_screen.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/home_screen/widgets/auth_txtf_heading.dart';
+import 'package:jalebi_shop_flutter/layout/native/mobile/screens/legal_screen/legal_screen.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/signup_screen/controllers/signup_controler.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/verify_email/verify_email.dart';
 
+import '../../../../../comman/legal_texts.dart';
 import '../commans/custom_button.dart';
 import '../home_screen/widgets/custom_text_field.dart';
 
@@ -172,17 +174,20 @@ class SignupScreen extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          Text("By signing up, you have agreed to our ",style: TextStyle(
-                              fontSize: 14,
-                              fontFamily: "Poppins",
-                              fontWeight: FontWeight.w400,
-                              color:isDark?Colors.white: Color(0xFF868686)
-                          ),),
+                          GestureDetector(
+                            child: Text("By signing up, you have agreed to our ",style: TextStyle(
+                                fontSize: 14,
+                                fontFamily: "Poppins",
+                                fontWeight: FontWeight.w400,
+                                color:isDark?Colors.white: Color(0xFF868686)
+                            ),),
+                            onTap: ()=>Get.to(LegalScreen(title: "Privacy Policy", content: LegalTexts.privacyPolicy)),
+                          ),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               GestureDetector(
-                                onTap:(){},
+                                onTap:()=>Get.to(LegalScreen(title: "Privacy Policy", content: LegalTexts.privacyPolicy)),
                                 child: Text("Terms and conditions",style: TextStyle(
                                     fontSize: 14,
                                     fontFamily: "Poppins",
@@ -197,7 +202,7 @@ class SignupScreen extends StatelessWidget {
                                   color: isDark?Colors.white:Color(0xFF868686)
                               ),),
                               GestureDetector(
-                                onTap: (){},
+                                onTap: ()=>Get.to(LegalScreen(title: "Privacy Policy", content: LegalTexts.privacyPolicy)),
                                 child: Text(" Privacy policy",style: TextStyle(
                                     fontSize: 14,
                                     fontFamily: "Poppins",

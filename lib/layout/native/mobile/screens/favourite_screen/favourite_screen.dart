@@ -5,7 +5,6 @@ import 'package:jalebi_shop_flutter/comman/sys_utilities.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/commans/custom_app_bar.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/favourite_screen/favrouite_controller.dart';
 
-import '../product_detail_screen/widgets/food_detail_screen.dart';
 class FavouriteScreen extends StatelessWidget {
   const FavouriteScreen({super.key});
 

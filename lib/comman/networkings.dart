@@ -6,7 +6,6 @@ import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'package:path/path.dart' as path;
 import 'package:mime/mime.dart';
-import 'package:path_provider/path_provider.dart';
 
 
 // Shared domain variable
@@ -39,40 +38,36 @@ Future<bool> checkConnectivity() async {
   }
 }
 
-Future<Map<String, dynamic>> registerUser(
-  String name,
-  String email,
-  String password,
-  String accountType,
-) async {
-  final url = Uri.parse('$domain/api/signup');
-
-  final body = jsonEncode({
-    "email": email,
-    "password": password,
-    "name": name,
-    "account_type": accountType,
-  });
+Future<String> signup({
+  required String name,
+  required String email,
+  required String password,
+  required String accountType,
+}) async {
+  final url = Uri.parse('https://jalebi.shop/api/signup'); // Replace with your actual API URL
 
   try {
     final response = await http.post(
       url,
-      headers: {"Content-Type": "application/json"},
-      body: body,
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({
+        'name': name,
+        'email': email,
+        'password': password,
+        'account_type': accountType,
+      }),
     );
-
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      return jsonDecode(response.body);
-    } else {
-      return {
-        "error": "Server responded with status: ${response.statusCode}",
-        "body": jsonDecode(response.body),
-      };
-    }
+    return response.body;
   } catch (e) {
-    return {"error": "Exception occurred", "message": e.toString()};
+    return jsonEncode({
+      "message":e.toString()
+    });
   }
 }
+
 
 Future<Map<String, dynamic>> sendOtp(String userEmail, String userType) async {
   final url = Uri.parse('$domain/api/sendOtp');
@@ -150,6 +145,36 @@ Future<String> updateAvatar(
   }
 }
 
+Future<String> addAddress(
+    String longAddress,
+    String city,
+    String pinCode,
+    String village,
+    String addressType,
+    String token,
+    ) async {
+  final url = Uri.parse('$domain/api/addAddress');
+  try {
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode({
+        'longAddress': longAddress,
+        "city": city,
+        "village": village,
+        "pincode": pinCode,
+        "addressType": addressType,
+      }),
+    );
+    return response.body;
+  } catch (e) {
+    return jsonEncode({"error message": e.toString()});
+  }
+}
+
 Future<String> updateAddress(
   String addressId,
   String longAddress,
@@ -182,7 +207,7 @@ Future<String> updateAddress(
   }
 }
 
-Future<Object> getRestrictedItems(String userId, String token) async {
+Future<Object> getRestrictedItems(String token) async {
   final url = Uri.parse('$domain/api/getRestrictedItems');
 
   try {
@@ -192,7 +217,9 @@ Future<Object> getRestrictedItems(String userId, String token) async {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $token',
       },
-      body: jsonEncode({'user_id': userId}),
+      body: jsonEncode({
+
+      }),
     );
 
     final decoded = jsonDecode(response.body);
@@ -209,7 +236,7 @@ Future<Object> getRestrictedItems(String userId, String token) async {
   }
 }
 
-Future<Object> getAllItems(String userId, String token) async {
+Future<Object> getAllItems(String token) async {
   final url = Uri.parse('$domain/api/getItems');
 
   try {
@@ -521,6 +548,31 @@ Future<Object> searchItems(String token,String query) async {
     return {'error_message': e.toString()};
   }
 }
+
+Future<String> cancelOrder(String authToken,int orderId) async {
+  final url = Uri.parse('$domain/api/cancelOrder');
+
+  try {
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $authToken', // if you're using Laravel Sanctum or Passport
+      },
+      body: json.encode({
+        "order_id":orderId
+      }),
+    );
+    return response.body;
+
+  } catch (e) {
+    return jsonEncode({
+      "error message": e.toString(),
+    });
+  }
+}
+
+
 
 
 

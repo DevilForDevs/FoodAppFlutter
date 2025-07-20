@@ -20,17 +20,17 @@ class FoodScreen extends StatelessWidget {
     final isDark = isDarkMode(context);
     return SafeArea(
       child: Scaffold(
-        appBar: CustomShopAppBarAppBar(controller: controller.subController,),
-        drawer: FoodScreenDrawer(isDark: isDark,controller: controller.subController,),
+        appBar: CustomShopAppBarAppBar(),
+        drawer: FoodScreenDrawer(),
         body: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              FoodScreenHeader(controller: controller.subController,),
+              FoodScreenHeader(),
               SizedBox(height: 12),
               GestureDetector(
-                onTap: () => Get.to(SearchScreen(subController: controller.subController,)),
+                onTap: () => Get.to(SearchScreen()),
                 child: Container(
                   padding: EdgeInsets.symmetric(horizontal: 10, vertical: 12),
                   decoration: BoxDecoration(
@@ -91,7 +91,6 @@ class FoodScreen extends StatelessWidget {
                     SizedBox(height: 200,),
                     Text("Items not loaded"),
                     SizedBox(height: 20,),
-
                     GestureDetector(
                         child: Text(
                           "Reload",

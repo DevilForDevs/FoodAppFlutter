@@ -3,17 +3,14 @@ import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:jalebi_shop_flutter/comman/sys_utilities.dart';
-import 'package:jalebi_shop_flutter/layout/native/mobile/screens/address_model.dart';
+import 'package:jalebi_shop_flutter/layout/native/mobile/screens/address_screen/address_screen.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/check_out_screen/check_out_screen.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/commans/custom_button.dart';
-import 'package:jalebi_shop_flutter/layout/native/mobile/screens/place_order_screen/place_order_screen_controller.dart';
+import 'package:jalebi_shop_flutter/layout/native/mobile/screens/credentials_controller.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/place_order_screen/widgets/order_address_item.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/product_model.dart';
 
-import '../address_screen/address_screen.dart';
-import '../addresses_list/address_screen_controller.dart';
 import '../commans/custom_app_bar.dart';
-import '../profile_controller.dart';
 import '../sucess_screen/sucess_screen.dart';
 
 class PlaceOrderScreen extends StatelessWidget {
@@ -24,10 +21,7 @@ class PlaceOrderScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = isDarkMode(context);
-    final controller=Get.put(PlaceOrderScreenController());
-
-    final profilecontoller = Get.find<ProfileController>();
-
+    final controller=Get.find<CredentialController>();
     return SafeArea(
       child: Scaffold(
         appBar: CustomAppBar(title: "Order"),
@@ -81,7 +75,7 @@ class PlaceOrderScreen extends StatelessWidget {
             SizedBox(
               width: double.infinity,
               child: TextField(
-                controller:controller.phone,
+                controller: controller.phone,
                 keyboardType: TextInputType.number,
                 maxLength: 12,// Show number keyboard
                 inputFormatters: [
@@ -106,7 +100,7 @@ class PlaceOrderScreen extends StatelessWidget {
             Text("Select Address", style: TextStyle(fontWeight: FontWeight.w600)),
             SizedBox(height: 8),
 
-            Obx(() => controller.addressList.isEmpty?Column(
+            Obx(() => controller.addresses.isEmpty?Column(
               children: [
                 Text("No addresses saved yet"),
                 Row(
@@ -114,7 +108,8 @@ class PlaceOrderScreen extends StatelessWidget {
                   children: [
                     Text("Add Address"),
                     IconButton(onPressed: (){
-                      Get.to(AddressScreen(addressModel: profilecontoller.addresModel));
+                      Get.to(AddressScreen(addressIndex: -1));
+
                     }, icon:Icon(Icons.add,color: Color(0xFFFC6E2A),)),
                   ],
                 )
@@ -123,9 +118,8 @@ class PlaceOrderScreen extends StatelessWidget {
             ):ListView.builder(
               shrinkWrap: true,
               physics: NeverScrollableScrollPhysics(),
-              itemCount: controller.addressList.length,
+              itemCount: controller.addresses.length,
               itemBuilder: (context, index) {
-                final address = controller.addressList[index];
                 return ProductDetailAddressItem(controller: controller,index: index,);
               },
             )),
@@ -138,14 +132,20 @@ class PlaceOrderScreen extends StatelessWidget {
               final mobileRegex = RegExp(r"^(0|91)?[6-9][0-9]{9}$");
 
               if (mobileRegex.hasMatch(controller.phone.text)) {
+
                 Get.to(CheckOutScreen( totalPrice:food.price,payFailure: (){
-                  print("payment failure");
+                  Fluttertoast.showToast(
+                    msg: "Payment Failed",
+                    toastLength: Toast.LENGTH_SHORT,
+                    gravity: ToastGravity.BOTTOM,
+                    fontSize: 16.0,
+                  );
                 }, paySuccess: (tId) async {
                   print("placing");
-                  /*final isOrderPlaced=await controller.placeOrder(food, quantity, tId);
+                  final isOrderPlaced=await controller.placeOrder(food, quantity, tId);
                   if(isOrderPlaced.contains("successfully")){
                     Get.off(() => SucessScreen());
-                  }*/
+                  }
                 }));
               } else {
                 Fluttertoast.showToast(

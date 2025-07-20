@@ -8,11 +8,11 @@ import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 
 import 'package:jalebi_shop_flutter/comman/networkings.dart';
+import 'package:jalebi_shop_flutter/layout/native/mobile/screens/credentials_controller.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/password_reset/reset_password_screen.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/personal_info_screen/upload_progess_dialog.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/verify_email/verify_email.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../profile_controller.dart';
 
 class PersonalInfoController extends GetxController {
   final isEditing = false.obs;
@@ -24,7 +24,8 @@ class PersonalInfoController extends GetxController {
 
 
 
-  final profileController = Get.find<ProfileController>();
+
+  final profileController = Get.find<CredentialController>();
 
 
 
@@ -35,7 +36,7 @@ class PersonalInfoController extends GetxController {
   late String originalBio;
   var token="".obs;
   var userId=0.obs;
-  var progress = 0.0.obs;
+  var mProgress = 0.0.obs;
   var isUploading = false.obs;
   @override
   Future<void> onInit() async {
@@ -56,6 +57,7 @@ class PersonalInfoController extends GetxController {
 
     if (credentials != null) {
       final decodedJson = jsonDecode(credentials);
+      print(decodedJson);
       userId.value = decodedJson["user"]["id"];
       token.value = decodedJson["token"];
     }
@@ -76,9 +78,9 @@ class PersonalInfoController extends GetxController {
         file: profileController.pickedImage.value!,
         accessToken: token.value,
         userId: userId.value,
-        listener: (_progress, message) async {
-          progress.value=_progress.toDouble();
-          if(_progress==-1){
+        listener: (progress, message) async {
+          mProgress.value=progress.toDouble();
+          if(progress==-1){
             Fluttertoast.showToast(
               msg: "Upload Failed",
               toastLength: Toast.LENGTH_SHORT,
@@ -87,7 +89,7 @@ class PersonalInfoController extends GetxController {
             );
             Get.back();
           }
-          if(_progress==100){
+          if(progress==100){
             isUploading.value=false;
             if(message.startsWith("http")){
               final response=await updateAvatar(message, token.value);

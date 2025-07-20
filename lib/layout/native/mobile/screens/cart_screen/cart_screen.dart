@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:jalebi_shop_flutter/comman/sys_utilities.dart';
-import 'package:jalebi_shop_flutter/layout/native/mobile/screens/address_screen/address_screen.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/cart_screen/cart_controller.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/check_out_screen/check_out_screen.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/commans/custom_app_bar.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/commans/custom_button.dart';
-import 'package:jalebi_shop_flutter/layout/native/mobile/screens/profile_controller.dart';
-import 'package:jalebi_shop_flutter/layout/native/mobile/screens/sucess_screen/sucess_screen.dart';
+import 'package:jalebi_shop_flutter/layout/native/mobile/screens/credentials_controller.dart';
+import 'package:jalebi_shop_flutter/layout/native/mobile/screens/select_address/select_address.dart';
+
+import '../sucess_screen/sucess_screen.dart';
+
 class CartScreen extends StatelessWidget {
   const CartScreen({super.key});
 
@@ -15,7 +18,8 @@ class CartScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark=isDarkMode(context);
     final controller=Get.put(CartController());
-    final address=Get.find<ProfileController>();
+    final credentialController=Get.find<CredentialController>();
+
     return SafeArea(
       child:Scaffold(
         appBar: CustomAppBar(title: "Cart"),
@@ -42,9 +46,9 @@ class CartScreen extends StatelessWidget {
                   ),
                   Spacer(),
                   GestureDetector(
-                    onTap: ()=>Get.to(AddressScreen(addressModel: address.addresModel)),
+                    onTap: ()=>Get.to(SelectAddressScreen()),
                     child: Text(
-                      "EDIT",
+                      "CHANGE",
                       style: TextStyle(
                           color: Color(0xFFFF7622),
                           fontSize: 14,
@@ -56,16 +60,7 @@ class CartScreen extends StatelessWidget {
                 ],
               ),
               SizedBox(height: 12,),
-              Obx(()=>Text(
-                   address.addresModel.longAddress.value,
-                    style: TextStyle(
-                        color: Color(0xFFA0A5BA),
-                        fontSize: 14,
-                        fontWeight: FontWeight.w400,
-                        fontFamily: "Poppins"
-                    ),
-                  ),
-              ),
+              Obx(()=> Text(credentialController.addresses.isEmpty?"NO Address Found":credentialController.addresses[credentialController.selectedAddressIndex.value].longAddress),),
               SizedBox(height: 12,),
               Row(
                 children: [
@@ -131,18 +126,32 @@ class CartScreen extends StatelessWidget {
                         CheckOutScreen(
                           totalPrice: controller.totalPrice.value.toInt(),
                           payFailure: () {
-                            print("payment failed");
+                            Fluttertoast.showToast(
+                              msg: "Payment Failed",
+                              toastLength: Toast.LENGTH_SHORT,
+                              gravity: ToastGravity.BOTTOM,
+                              fontSize: 16.0,
+                            );
                           },
                           paySuccess: (tid) async {
-                            final orderPlaced = await controller.placeOrder(
-                              address_id: address.addresModel.addressId.value,phone: result,method: tid
+                            final orderPlaced = await controller.placeOrder(phone: result,method: tid
                             );
                             if(orderPlaced){
-                              for(var m in controller.cart){
-                                controller.removeFromCart(m);
+                              if(orderPlaced){
+                                for(var m in controller.cart){
+                                  controller.removeFromCart(m);
+                                }
+                                Get.off(SucessScreen());
                               }
-                              Get.off(SucessScreen());
+                            }else{
+                              Fluttertoast.showToast(
+                                msg: "Failed to place order",
+                                toastLength: Toast.LENGTH_SHORT,
+                                gravity: ToastGravity.BOTTOM,
+                                fontSize: 16.0,
+                              );
                             }
+
 
                           },
                         ),

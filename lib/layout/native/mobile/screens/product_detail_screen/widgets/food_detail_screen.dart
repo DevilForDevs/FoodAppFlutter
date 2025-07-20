@@ -1,16 +1,20 @@
 
 
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:jalebi_shop_flutter/comman/sys_utilities.dart';
+import 'package:jalebi_shop_flutter/layout/native/mobile/screens/banner_ad_widget.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/cart_screen/cart_screen.dart';
-import 'package:jalebi_shop_flutter/layout/native/mobile/screens/commans/cart_button_controller.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/commans/custom_app_bar.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/commans/custom_button.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/commans/database.dart';
+import 'package:jalebi_shop_flutter/layout/native/mobile/screens/credentials_controller.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/place_order_screen/place_order_screen.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/product_detail_screen/detail_screen_controller.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/product_model.dart';
+
+import '../../ads_controller.dart';
 
 
 class FoodDetailScreen extends StatelessWidget {
@@ -21,7 +25,8 @@ class FoodDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = isDarkMode(context);
     final controller = Get.put(DetailScreenController());
-    final cartbtn=Get.find<CartButtonController>();
+    final AdController adController = Get.find();
+    final credentialController=Get.find<CredentialController>();
     return SafeArea(
       child: Scaffold(
         appBar: CustomAppBar(title: "Details"),
@@ -46,21 +51,7 @@ class FoodDetailScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                  // Heart icon at bottom-left
-                  /*Positioned(
-                    bottom: 12,
-                    right: 12,
-                    child: Container(
-                      padding: EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                      ),
-                      child: IconButton(onPressed: (){}, icon: Icon(
-                        Icons.favorite_border,
-                        color: Colors.white,
-                      )),
-                    ),
-                  )*/
+
                 ],
               ),
               SizedBox(height: 16),
@@ -187,7 +178,11 @@ class FoodDetailScreen extends StatelessWidget {
               Center(
                 child: CustomActionButton(
                   label: "Order Now",
-                  onPressed:()=>Get.to(PlaceOrderScreen(food: food,quantity: controller.quantity.value,)),
+                  onPressed:(){
+                    adController.showInterstitialAd(onAdClosed: (){
+                      Get.to(PlaceOrderScreen(food: food,quantity: controller.quantity.value,));
+                    });
+                  },
                   backgroundColor: Color(0xFFFF7622),
                 ),
               ),
@@ -197,15 +192,13 @@ class FoodDetailScreen extends StatelessWidget {
                   label: "Add to cart",
                   onPressed: () async {
                     final msg=CartDatabase.insertOrUpdateCartItem(id: food.item_id, name: food.name, image: food.thumbnail, price: food.price.toDouble(), quantity: controller.quantity.value);
-                    // Show snackbar confirmation
-                    Get.snackbar(
-                      "Cart",
-                      "Item added to cart",
-                      snackPosition: SnackPosition.BOTTOM,
-                      backgroundColor: Colors.red,
-                      colorText: Colors.white,
-                      duration: Duration(seconds: 2),
+                    Fluttertoast.showToast(
+                      msg: "Item Added to cart",
+                      toastLength: Toast.LENGTH_SHORT,
+                      gravity: ToastGravity.BOTTOM,
+                      fontSize: 16.0,
                     );
+                    credentialController.cartSize.value++;
 
                     // Show dialog asking if user wants to go to cart
                     Future.delayed(Duration(milliseconds: 200), () {
@@ -228,6 +221,8 @@ class FoodDetailScreen extends StatelessWidget {
                   backgroundColor: Color(0xFFFF7622),
                 ),
               ),
+              SizedBox(height: 100,),
+              Center(child: BannerAdWidget())
 
             ],
           ),

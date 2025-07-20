@@ -11,24 +11,23 @@ class OnBoardingScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final PageController _controller = PageController();
+    final PageController controller0 = PageController();
     final controller = Get.put(OnboardingController());
     final List<Map<String, String>> pages = [
       {
         "image": "assets/onb1.png",
         "title": "All your favorites",
-        "subtitle":
-            "Get all your loved foods in one place,\nyou just place the order, we do the rest",
+        "subtitle": "Get all your loved foods in one place,\nyou just place the order_tracking_screen, we do the rest",
       },
       {
         "image": "assets/onb2.png",
         "title": "Fast Delivery",
-        "subtitle": "Experience fast delivery\nat your doorstep in minutes",
+        "subtitle": "Experience fast delivery\n at your doorstep in minutes",
       },
       {
         "image": "assets/onb3.png",
         "title": "Live Tracking",
-        "subtitle": "Track your order live\nfrom our app anytime",
+        "subtitle": "Get all your loved foods in one once place,\nfrom our app anytime",
       },
     ];
     return Scaffold(
@@ -41,7 +40,7 @@ class OnBoardingScreen extends StatelessWidget {
               SizedBox(
                 height: 400, // Give PageView a fixed height to avoid Expanded
                 child: PageView.builder(
-                  controller: _controller,
+                  controller: controller0,
                   onPageChanged: (index) {
                     controller.updatePage(index, pages.length);
                   },
@@ -53,7 +52,7 @@ class OnBoardingScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 32),
-              DotIndic(controller: _controller, pages: pages),
+              DotIndic(controller: controller0, pages: pages),
               const SizedBox(height: 24),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -71,7 +70,7 @@ class OnBoardingScreen extends StatelessWidget {
                       if (controller.isLastPage.value) {
                         Get.to(() => const HomeScreen());
                       } else {
-                        _controller.nextPage(
+                        controller0.nextPage(
                           duration: const Duration(milliseconds: 300),
                           curve: Curves.easeInOut,
                         );

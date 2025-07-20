@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:jalebi_shop_flutter/layout/native/mobile/screens/profile_controller.dart';
+import 'package:jalebi_shop_flutter/layout/native/mobile/screens/credentials_controller.dart';
+import 'package:get/get.dart';
 class FoodScreenHeader extends StatelessWidget {
   const FoodScreenHeader({
-    super.key, required this.controller,
+    super.key,
   });
-  final ProfileController controller;
+
 
   @override
   Widget build(BuildContext context) {
+    final conroller=Get.find<CredentialController>();
     return Row(
       children: [
         Text(
-          "Hey ${controller.name},",
+          "Hey ${conroller.name.value},",
           style: TextStyle(
               fontSize: 16
 

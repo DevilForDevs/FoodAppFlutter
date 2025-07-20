@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class ThinTextFileEditor extends StatelessWidget {
   final TextEditingController controller;
 
-   ThinTextFileEditor({super.key, required this.controller});
+   const ThinTextFileEditor({super.key, required this.controller});
 
   @override
   Widget build(BuildContext context) {

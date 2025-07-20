@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:jalebi_shop_flutter/comman/sys_utilities.dart';
+import 'package:jalebi_shop_flutter/layout/native/mobile/screens/address_screen/address_screen.dart';
+import 'package:jalebi_shop_flutter/layout/native/mobile/screens/credentials_controller.dart';
 
-import '../../address_model.dart';
-import '../address_screen_controller.dart';
+import '../../place_order_screen/address_db.dart';
 class AddressItemView extends StatelessWidget {
   const AddressItemView({
     super.key,
@@ -11,8 +12,8 @@ class AddressItemView extends StatelessWidget {
   });
 
 
-  final AddressModel address;
-  final AddressScreenController controller;
+  final Address address;
+  final CredentialController controller;
   final int index;
 
   @override
@@ -32,7 +33,7 @@ class AddressItemView extends StatelessWidget {
               children: [
                 Expanded(
                   child: Text(
-                    address.addressType.value,
+                    address.addressType,
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -41,12 +42,12 @@ class AddressItemView extends StatelessWidget {
                 ),
                 IconButton(
                   icon: const Icon(Icons.edit, color: Color(0xFFFF7622)),
-                  onPressed: () => controller.editAddress(index),
+                  onPressed: () =>AddressScreen(addressIndex: index),
                 ),
               ],
             ),
             const SizedBox(height: 4),
-            Text(address.longAddress.value),
+            Text(address.longAddress),
           ],
         ),
       ),

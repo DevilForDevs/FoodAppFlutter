@@ -1,3 +1,4 @@
+/*
 import 'package:flutter/material.dart';
 import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
 
@@ -22,10 +23,14 @@ class CategoryItem extends StatelessWidget {
         itemBuilder: (context, index) {
           return GestureDetector(
             onTap: () {
-              controller.categorySelectItem.value = index; // ✅ Fixed assignment
+             */
+/* controller.categorySelectItem.value = index; // ✅ Fixed assignment*//*
+
             },
             child: Obx(() {
-              bool isSelected = index == controller.categorySelectItem.value;
+             */
+/* bool isSelected = index == controller.categorySelectItem.value;*//*
+
               return Container(
                 margin: index != 0 ? EdgeInsets.only(left: 10) : EdgeInsets.zero,
                 decoration: BoxDecoration(
@@ -71,4 +76,4 @@ class CategoryItem extends StatelessWidget {
       ),
     );
   }
-}
+}*/

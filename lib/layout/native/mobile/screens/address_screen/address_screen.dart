@@ -2,18 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:jalebi_shop_flutter/comman/sys_utilities.dart';
-import 'package:jalebi_shop_flutter/layout/native/mobile/screens/address_model.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/address_screen/edit_address_controller.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/commans/custom_app_bar.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/commans/custom_button.dart';
 
-
 class AddressScreen extends StatelessWidget {
-  const AddressScreen({super.key, required this.addressModel});
-  final AddressModel addressModel;
+  const AddressScreen({super.key, required this.addressIndex,});
+  final int addressIndex;
+
   @override
   Widget build(BuildContext context) {
-    final controller=Get.put(EditAddressController(addressModel));
+    final controller=Get.put(EditAddressController(addressIndex));
     final isDark=isDarkMode(context);
     return SafeArea(
       child: Scaffold(
@@ -34,7 +33,7 @@ class AddressScreen extends StatelessWidget {
               ),
               SizedBox(height: 4),
               TextField(
-                controller: controller.longAddress,
+                controller: controller.LongAddress,
                 decoration: InputDecoration(
                   filled: true,
                   fillColor: isDark?Color(0xFF303030):Color(0xFFF0F5FA),
@@ -139,7 +138,7 @@ class AddressScreen extends StatelessWidget {
                   filled: true,
                   fillColor: isDark?Color(0xFF303030):Color(0xFFF0F5FA),
                   contentPadding: EdgeInsets.symmetric(vertical: 14, horizontal: 16),
-                  hintText: 'Enter village,land mark...',
+                  hintText: 'Enter landmark like ...mandil ke pas',
                   hintStyle: TextStyle(color: Colors.grey[600]),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),

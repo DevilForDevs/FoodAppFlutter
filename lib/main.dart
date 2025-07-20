@@ -1,12 +1,26 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'layout/base_layout.dart';
+import 'layout/native/mobile/screens/ads_controller.dart';
 import 'layout/native/mobile/screens/settings_screen/theme_controller.dart';
 
 
 Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await MobileAds.instance.initialize();
+
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+
+
+
+
 
   Get.put(ThemeController());
+  final adController = Get.put(AdController());
+
 
   runApp(const MyApp());
 }

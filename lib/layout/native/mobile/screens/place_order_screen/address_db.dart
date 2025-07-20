@@ -2,7 +2,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
 class Address {
-  final int? addressId;
+  final int addressId;
   final int userId;
   final String city;
   final String street;
@@ -11,7 +11,7 @@ class Address {
   final String addressType;
 
   Address({
-    this.addressId,
+    required this.addressId,
     required this.userId,
     required this.city,
     required this.street,
@@ -59,7 +59,7 @@ class AddressDbHelper {
       onCreate: (db, version) async {
         await db.execute('''
          CREATE TABLE addresses (
-            address_id  INTEGER PRIMARY KEY AUTOINCREMENT,
+            address_id  INTEGER PRIMARY KEY,
             user_id INTEGER,
             city TEXT,
             street TEXT,
@@ -76,7 +76,8 @@ class AddressDbHelper {
   // 🔹 Insert Address
   static Future<int> insertAddress(Address address) async {
     final db = await database;
-    return await db.insert('addresses', address.toMap());
+    return await db.insert('addresses', address.toMap(),conflictAlgorithm:
+    ConflictAlgorithm.replace, );
   }
 
   // 🔹 Update Address
@@ -109,5 +110,15 @@ class AddressDbHelper {
       return Address.fromMap(result.first);
     }
     return null;
+  }
+  static Future<bool> addressIdExists(int addressId) async {
+    final db = await database;
+    final result = await db.query(
+      'addresses',
+      where: 'address_id = ?',
+      whereArgs: [addressId],
+      limit: 1,
+    );
+    return result.isNotEmpty;
   }
 }

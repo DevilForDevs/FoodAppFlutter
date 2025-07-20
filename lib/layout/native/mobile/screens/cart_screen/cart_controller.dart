@@ -1,11 +1,8 @@
-import 'dart:convert';
-import 'dart:ffi';
 
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:jalebi_shop_flutter/comman/networkings.dart';
-import 'package:jalebi_shop_flutter/layout/native/mobile/screens/commans/cart_button_controller.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:jalebi_shop_flutter/layout/native/mobile/screens/credentials_controller.dart';
 import '../commans/database.dart';
 import 'cart_model.dart';
 
@@ -13,17 +10,17 @@ class CartController extends GetxController {
   final cart = <CartItemModel>[].obs;
   final totalPrice = 0.0.obs;
   final contact=TextEditingController();
+  late CredentialController credentialController;
 
   @override
   void onInit() {
     super.onInit();
+    credentialController=Get.find<CredentialController>();
     fetchCartItems();
   }
 
   Future<void> fetchCartItems() async {
     final cartItems = await CartDatabase.getCartItems();
-    print(cartItems);
-
     cart.assignAll(cartItems.map((item) => CartItemModel(
       id: item["id"],
       name: item["name"],
@@ -34,7 +31,7 @@ class CartController extends GetxController {
 
 
     calculateTotalPrice();
-    updateCartButtonCount();
+
   }
 
   void calculateTotalPrice() {
@@ -61,25 +58,20 @@ class CartController extends GetxController {
 
   Future<void> updateCartButtonCount() async {
     final cartItems = await CartDatabase.getCartItems();
-    final cartButtonController = Get.find<CartButtonController>();
-    cartButtonController.cartSize.value = cartItems.length;
+    credentialController.cartSize.value=cartItems.length;
   }
 
-  Future<bool> placeOrder({required int address_id,required String phone,required String method}) async {
-    final prefs = await SharedPreferences.getInstance();
-    final credentials = prefs.getString('credentials');
-
-    if (credentials != null) {
-      final decodedJson = jsonDecode(credentials);
-      final userId=decodedJson["user"]["id"].toString();
-      final token = decodedJson["token"];
-      for(var item in cart){
-        final mResponse=await addOrder(token, userId, address_id.toString(), item.id.value.toString(), phone, item.qty.value, item.price.value.toInt(),method);
+  Future<bool> placeOrder({required String phone,required String method}) async {
+    final addressId=credentialController.addresses[credentialController.selectedAddressIndex.value].addressId;
+    for(var item in cart){
+      final mResponse=await addOrder(credentialController.token.value, credentialController.userId, addressId.toString(), item.id.value.toString(), phone, item.qty.value, item.price.value.toInt(),method);
+      if(mResponse.contains("error message")){
+        return false;
       }
-      return true;
 
     }
-    return false;
+    return true;
+
 
   }
 }
