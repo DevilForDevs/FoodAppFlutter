@@ -571,6 +571,30 @@ Future<String> cancelOrder(String authToken,int orderId) async {
     });
   }
 }
+/*qrlLogin*/
+
+Future<String> qrLogin(int userId,String name) async {
+  final url = Uri.parse('$domain/api/qrlLogin');
+
+  try {
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: json.encode({
+        "userId":userId,
+        "name":name
+      }),
+    );
+    return response.body;
+
+  } catch (e) {
+    return jsonEncode({
+      "error message": e.toString(),
+    });
+  }
+}
 
 
 

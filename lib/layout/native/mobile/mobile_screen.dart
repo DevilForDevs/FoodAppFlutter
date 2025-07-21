@@ -9,7 +9,6 @@ class MobileScreen extends StatelessWidget {
     final prefs = await SharedPreferences.getInstance();
     return prefs.containsKey('credentials');
   }
-
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<bool>(
@@ -18,6 +17,7 @@ class MobileScreen extends StatelessWidget {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Scaffold(body: Center(child: CircularProgressIndicator()));
         } else if (snapshot.hasData && snapshot.data == true) {
+
           return FoodScreen();
         } else {
           return OnBoardingScreen();

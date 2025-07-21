@@ -1,17 +1,17 @@
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:jalebi_shop_flutter/comman/sys_utilities.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/address_screen/address_screen.dart';
-import 'package:jalebi_shop_flutter/layout/native/mobile/screens/check_out_screen/check_out_screen.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/commans/custom_button.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/credentials_controller.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/place_order_screen/widgets/order_address_item.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/product_model.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../commans/custom_app_bar.dart';
-import '../sucess_screen/sucess_screen.dart';
 
 class PlaceOrderScreen extends StatelessWidget {
   const PlaceOrderScreen({super.key, required this.food, required this.quantity});
@@ -22,9 +22,10 @@ class PlaceOrderScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = isDarkMode(context);
     final controller=Get.find<CredentialController>();
+    final isQrSignIN=controller.isQrSignIN.value;
     return SafeArea(
       child: Scaffold(
-        appBar: CustomAppBar(title: "Order"),
+        appBar: CustomAppBar(title: "Order Summary"),
         body: ListView(
           padding: EdgeInsets.symmetric(horizontal: 24),
           children: [
@@ -71,7 +72,9 @@ class PlaceOrderScreen extends StatelessWidget {
             _rowText("Total Price :", "₹${quantity * food.price}"),
 
             SizedBox(height: 8),
+            if(!isQrSignIN)
             _rowText("Contact :", ""),
+            if(!isQrSignIN)
             SizedBox(
               width: double.infinity,
               child: TextField(
@@ -97,9 +100,10 @@ class PlaceOrderScreen extends StatelessWidget {
             ),
 
             SizedBox(height: 16),
+            if(!isQrSignIN)
             Text("Select Address", style: TextStyle(fontWeight: FontWeight.w600)),
             SizedBox(height: 8),
-
+            if(!isQrSignIN)
             Obx(() => controller.addresses.isEmpty?Column(
               children: [
                 Text("No addresses saved yet"),
@@ -127,42 +131,20 @@ class PlaceOrderScreen extends StatelessWidget {
         ),
         bottomNavigationBar: Padding(
           padding: EdgeInsets.symmetric(horizontal: 24,vertical: 24),
-          child: CustomActionButton(label: "CheckOut", onPressed: (){
-            if(controller.phone.text.isNotEmpty){
-              final mobileRegex = RegExp(r"^(0|91)?[6-9][0-9]{9}$");
-
-              if (mobileRegex.hasMatch(controller.phone.text)) {
-
-                Get.to(CheckOutScreen( totalPrice:food.price,payFailure: (){
-                  Fluttertoast.showToast(
-                    msg: "Payment Failed",
-                    toastLength: Toast.LENGTH_SHORT,
-                    gravity: ToastGravity.BOTTOM,
-                    fontSize: 16.0,
-                  );
-                }, paySuccess: (tId) async {
-                  print("placing");
-                  final isOrderPlaced=await controller.placeOrder(food, quantity, tId);
-                  if(isOrderPlaced.contains("successfully")){
-                    Get.off(() => SucessScreen());
-                  }
-                }));
-              } else {
-                Fluttertoast.showToast(
-                  msg: "Invalid mobile number",
-                  toastLength: Toast.LENGTH_SHORT,
-                  gravity: ToastGravity.BOTTOM,
-                  fontSize: 16.0,
-                );
-              }
-
-            }else{
+          child: CustomActionButton(label: isQrSignIN?"Buy":"CheckOut", onPressed: () async {
+            if(controller.addresses.isEmpty){
               Fluttertoast.showToast(
-                msg: "Phone Number is required",
+                msg: "Address is required",
                 toastLength: Toast.LENGTH_SHORT,
                 gravity: ToastGravity.BOTTOM,
                 fontSize: 16.0,
               );
+            }else{
+              if(isQrSignIN){
+
+              }else{
+                controller.mplaceOrder(food, quantity);
+              }
             }
           },backgroundColor: Color(0xFFFF7622)),
         ),
