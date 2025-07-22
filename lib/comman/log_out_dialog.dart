@@ -7,6 +7,7 @@ import 'package:jalebi_shop_flutter/layout/native/mobile/screens/home_screen/hom
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sqflite/sqflite.dart';
 
 void showLogoutDialog(BuildContext context) {
   showDialog(
@@ -33,6 +34,10 @@ void showLogoutDialog(BuildContext context) {
               await file.delete();
               final prefs = await SharedPreferences.getInstance();
               prefs.remove("credentials");
+              prefs.remove("pending_order");
+              prefs.remove("is_qr_login");
+              final deleted=deleteDatabaseFiles();
+              Get.offAll(HomeScreen());
             } else {
               print('cart.db does not exist.');
             }
@@ -43,6 +48,33 @@ void showLogoutDialog(BuildContext context) {
       ],
     ),
   );
+}
+Future<void> deleteDatabaseFiles() async {
+  try {
+    // cart.db path
+    final dir = await getApplicationDocumentsDirectory();
+    final cartDbPath = join(dir.path, 'cart.db');
+
+    // address.db path
+    final dbPath = await getDatabasesPath();
+    final addressDbPath = join(dbPath, 'address.db');
+
+    // Delete cart.db if it exists
+    final cartDbFile = File(cartDbPath);
+    if (await cartDbFile.exists()) {
+      await cartDbFile.delete();
+      print('Deleted cart.db');
+    }
+
+    // Delete address.db if it exists
+    final addressDbFile = File(addressDbPath);
+    if (await addressDbFile.exists()) {
+      await addressDbFile.delete();
+      print('Deleted address.db');
+    }
+  } catch (e) {
+    print('Error deleting database files: $e');
+  }
 }
 
 Future<void> logout(BuildContext context) async {

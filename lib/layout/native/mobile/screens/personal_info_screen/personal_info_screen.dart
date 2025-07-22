@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
+import 'package:jalebi_shop_flutter/comman/log_out_dialog.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/commans/custom_app_bar.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/credentials_controller.dart';
 import 'personal_info_controller.dart';
@@ -94,6 +95,7 @@ class PersonalInfoScreen extends StatelessWidget {
                       ? ElevatedButton(
                     onPressed:(){
                       if(profileController.accountType.value=="individual"){
+                        showLoadingDialog(context);
                         controller.saveChanges();
                       }else{
                         Fluttertoast.showToast(
@@ -119,7 +121,7 @@ class PersonalInfoScreen extends StatelessWidget {
                       controller.updatePassword();
                     }else{
                       Fluttertoast.showToast(
-                        msg: "Account not support Password",
+                        msg: "Account not support Password editing",
                         toastLength: Toast.LENGTH_SHORT,
                         gravity: ToastGravity.BOTTOM,
                         fontSize: 16.0,

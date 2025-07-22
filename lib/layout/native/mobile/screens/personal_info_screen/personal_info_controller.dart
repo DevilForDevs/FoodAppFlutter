@@ -131,6 +131,7 @@ class PersonalInfoController extends GetxController {
     if (currentName != originalName) {
       if(token.value.isNotEmpty){
         final response= await updateProfileName(currentName,token.value);
+        Get.back();
         if(response.contains("successfully")){
           final prefs = await SharedPreferences.getInstance();
           final credentials = prefs.getString('credentials');
@@ -147,7 +148,9 @@ class PersonalInfoController extends GetxController {
     }
 
     if (currentEmail != originalEmail) {
+
       final response = await sendOtp(currentEmail.trim(), "new");
+      Get.back();
       if (response.containsKey('otp')) {
         Get.to(VerifyEmailScreen(emailUpdate: true,displayEmail: currentEmail,otp:response['otp'].toString(),));
         profileController.email.value = currentEmail;
@@ -164,6 +167,7 @@ class PersonalInfoController extends GetxController {
         await prefs.setString('credentials', jsonEncode(decodedJson));
       }
       profileController.bio.value = currentBio;
+      Get.back();
 
 
     }

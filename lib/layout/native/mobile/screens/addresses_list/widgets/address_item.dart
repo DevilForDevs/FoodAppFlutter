@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:jalebi_shop_flutter/comman/sys_utilities.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/address_screen/address_screen.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/credentials_controller.dart';
+import 'package:get/get.dart';
 
 import '../../place_order_screen/address_db.dart';
 class AddressItemView extends StatelessWidget {
@@ -42,7 +43,7 @@ class AddressItemView extends StatelessWidget {
                 ),
                 IconButton(
                   icon: const Icon(Icons.edit, color: Color(0xFFFF7622)),
-                  onPressed: () =>AddressScreen(addressIndex: index),
+                  onPressed: () =>Get.to(AddressScreen(addressIndex: index)),
                 ),
               ],
             ),

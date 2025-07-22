@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:jalebi_shop_flutter/comman/networkings.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/commans/database.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -20,9 +21,11 @@ class ChatMessage {
     required this.text,
     required this.chatId,
     required this.isUser,
-    required this.isSeen, required timestamp,
-  }) : timestamp = "11,july";
+    required this.isSeen,
+    required this.timestamp, // ✅ assign properly here
+  });
 }
+
 
 class ChatController extends GetxController {
   var messages = <ChatMessage>[].obs;
@@ -57,7 +60,10 @@ class ChatController extends GetxController {
       if(responseJson["insertedChatId"]==-1){
         print("server failure");
       }else{
-        final outgoingmessage=ChatMessage(text: inputController.text, chatId:responseJson["insertedChatId"], isUser: true, isSeen: 0, timestamp: "11,july",);
+        final localTime = DateTime.now(); // gets local time
+        final formatted = DateFormat("h:mm a").format(localTime).toLowerCase();
+        print(formatted);
+        final outgoingmessage=ChatMessage(text: inputController.text, chatId:responseJson["insertedChatId"], isUser: true, isSeen: 0, timestamp:  formatted,);
         CartDatabase.insertMessage(outgoingmessage);
         messages.add(outgoingmessage);
         inputController.clear();
@@ -114,17 +120,19 @@ class ChatController extends GetxController {
 
 
     for (var msg in unSeenMessages) {
+      final timestamp = msg["timestamp"].toString();
+      final timestampWithZ = "${timestamp}Z";
+      DateTime utcTime = DateTime.parse(timestampWithZ);
+      DateTime localTime = utcTime.toLocal();
+      final formatted = DateFormat("h:mm a").format(localTime).toLowerCase();
       final mMessage=ChatMessage(
         text: msg['message'],
         isUser: false,
         chatId: msg["chat_id"],
         isSeen: 1,
-        timestamp:msg['created_at'].toString(),
+        timestamp:formatted,
       );
-      print(msg);
-      print("++++++++++++++++++++++++++++");
       final insertedChat= await CartDatabase.insertMessage(mMessage);
-      print("msg from server inserted");
       messages.add(mMessage);
     }
 

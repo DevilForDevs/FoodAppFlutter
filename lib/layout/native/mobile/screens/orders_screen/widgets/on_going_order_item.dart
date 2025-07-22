@@ -19,6 +19,7 @@ class OnGoingOrderItem extends StatelessWidget {
   final int index;
   final OrderScreenController ocontoller;
 
+
   @override
   Widget build(BuildContext context) {
     final controller=Get.find<CredentialController>();
@@ -158,46 +159,55 @@ class OnGoingOrderItem extends StatelessWidget {
                 height: 35,
                 child: ElevatedButton(
                   onPressed: () async {
-                    final confirm = await showDialog<bool>(
-                      context: context,
-                      builder: (context) => AlertDialog(
-                        title: Text("Confirm Cancellation"),
-                        content: Text("Are you sure you want to cancel this order_tracking_screen?"),
-                        actions: [
-                          TextButton(
-                            onPressed: () => Navigator.pop(context, false),
-                            child: Text("No"),
-                          ),
-                          TextButton(
-                            onPressed: () => Navigator.pop(context, true),
-                            child: Text("Yes"),
-                          ),
-                        ],
-                      ),
-                    );
+                    if(controller.isQrSignIN.value){
+                      Fluttertoast.showToast(
+                        msg: "You can't cancel order",
+                        toastLength: Toast.LENGTH_SHORT,
+                        gravity: ToastGravity.BOTTOM,
+                        fontSize: 16.0,
+                      );
+                    }else{
+                      final confirm = await showDialog<bool>(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: Text("Confirm Cancellation"),
+                          content: Text("Are you sure you want to cancel this order_tracking_screen?"),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context, false),
+                              child: Text("No"),
+                            ),
+                            TextButton(
+                              onPressed: () => Navigator.pop(context, true),
+                              child: Text("Yes"),
+                            ),
+                          ],
+                        ),
+                      );
 
 
-                    if (confirm == true) {
-                      showLoadingDialog(context);
-                      final response = await cancelOrder(controller.token.value, orderItem.orderId);
-                      if (response.contains("successfully")) {
-                        Get.back();
-                        Fluttertoast.showToast(
-                          msg: "Order Canceled Successfully",
-                          toastLength: Toast.LENGTH_SHORT,
-                          gravity: ToastGravity.BOTTOM,
-                          fontSize: 16.0,
-                        );
-                        ocontoller.orders[index]=OrderModel(userId: orderItem.userId, address: orderItem.address, item:orderItem.item, contact: orderItem.contact, quantity: orderItem.quantity, price: orderItem.price, method:orderItem.method, status: "cancelled", image_url: orderItem.image_url, name: orderItem.name, orderId: orderItem.orderId, unit: orderItem.unit);
-                      } else {
-                        Get.back();
-                        print(response);
-                        Fluttertoast.showToast(
-                          msg: response,
-                          toastLength: Toast.LENGTH_SHORT,
-                          gravity: ToastGravity.BOTTOM,
-                          fontSize: 16.0,
-                        );
+                      if (confirm == true) {
+                        showLoadingDialog(context);
+                        final response = await cancelOrder(controller.token.value, orderItem.orderId);
+                        if (response.contains("successfully")) {
+                          Get.back();
+                          Fluttertoast.showToast(
+                            msg: "Order Canceled Successfully",
+                            toastLength: Toast.LENGTH_SHORT,
+                            gravity: ToastGravity.BOTTOM,
+                            fontSize: 16.0,
+                          );
+                          ocontoller.orders[index]=OrderModel(userId: orderItem.userId, address: orderItem.address, item:orderItem.item, contact: orderItem.contact, quantity: orderItem.quantity, price: orderItem.price, method:orderItem.method, status: "cancelled", image_url: orderItem.image_url, name: orderItem.name, orderId: orderItem.orderId, unit: orderItem.unit);
+                        } else {
+                          Get.back();
+                          print(response);
+                          Fluttertoast.showToast(
+                            msg: response,
+                            toastLength: Toast.LENGTH_SHORT,
+                            gravity: ToastGravity.BOTTOM,
+                            fontSize: 16.0,
+                          );
+                        }
                       }
                     }
                   },

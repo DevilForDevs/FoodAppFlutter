@@ -72,9 +72,7 @@ class PlaceOrderScreen extends StatelessWidget {
             _rowText("Total Price :", "₹${quantity * food.price}"),
 
             SizedBox(height: 8),
-            if(!isQrSignIN)
             _rowText("Contact :", ""),
-            if(!isQrSignIN)
             SizedBox(
               width: double.infinity,
               child: TextField(
@@ -89,7 +87,7 @@ class PlaceOrderScreen extends StatelessWidget {
                   filled: true,
                   fillColor: isDark ? Color(0xFF303030) : Color(0xFFF0F5FA),
                   contentPadding: EdgeInsets.symmetric(vertical: 14, horizontal: 16),
-                  hintText: 'Enter phone no',
+                  hintText: isQrSignIN?"Not Required":'Enter phone no',
                   hintStyle: TextStyle(color: Colors.grey[600]),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -100,10 +98,9 @@ class PlaceOrderScreen extends StatelessWidget {
             ),
 
             SizedBox(height: 16),
-            if(!isQrSignIN)
             Text("Select Address", style: TextStyle(fontWeight: FontWeight.w600)),
             SizedBox(height: 8),
-            if(!isQrSignIN)
+
             Obx(() => controller.addresses.isEmpty?Column(
               children: [
                 Text("No addresses saved yet"),
@@ -131,7 +128,9 @@ class PlaceOrderScreen extends StatelessWidget {
         ),
         bottomNavigationBar: Padding(
           padding: EdgeInsets.symmetric(horizontal: 24,vertical: 24),
-          child: CustomActionButton(label: isQrSignIN?"Buy":"CheckOut", onPressed: () async {
+          child: CustomActionButton(label: "CheckOut", onPressed: () async {
+            print("qr accont");
+            print(controller.isQrSignIN.value);
             if(controller.addresses.isEmpty){
               Fluttertoast.showToast(
                 msg: "Address is required",
@@ -140,11 +139,7 @@ class PlaceOrderScreen extends StatelessWidget {
                 fontSize: 16.0,
               );
             }else{
-              if(isQrSignIN){
-
-              }else{
-                controller.mplaceOrder(food, quantity);
-              }
+              controller.mplaceOrder(food, quantity);
             }
           },backgroundColor: Color(0xFFFF7622)),
         ),

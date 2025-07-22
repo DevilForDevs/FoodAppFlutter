@@ -92,70 +92,77 @@ class CartScreen extends StatelessWidget {
                   label: "Place Order",
                   backgroundColor: Color(0xFFFF7622),
                   onPressed: () async {
-
-
-                    final result = await Get.dialog<String>(
-                      AlertDialog(
-                        title: Text("Enter your phone number"),
-                        content: TextField(
-                          controller: controller.contact,
-                          keyboardType: TextInputType.phone,
-                          decoration: InputDecoration(hintText: "Phone Number"),
-                        ),
-                        actions: [
-                          TextButton(
-                            onPressed: () => Get.back(), // Cancel
-                            child: Text("Cancel"),
+                    if(controller.cart.isEmpty){
+                      Fluttertoast.showToast(
+                        msg: "Cart is empty",
+                        toastLength: Toast.LENGTH_SHORT,
+                        gravity: ToastGravity.BOTTOM,
+                        fontSize: 16.0,
+                      );
+                    }else{
+                      final result = await Get.dialog<String>(
+                        AlertDialog(
+                          title: Text("Enter your phone number"),
+                          content: TextField(
+                            controller: controller.contact,
+                            keyboardType: TextInputType.phone,
+                            decoration: InputDecoration(hintText: "Phone Number"),
                           ),
-                          TextButton(
-                            onPressed: () {
-                              final phone = controller.contact.text.trim();
-                              if (phone.isNotEmpty) {
-                                Get.back(result: phone); // Return phone number
-                              }
-                            },
-                            child: Text("Continue"),
-                          ),
-                        ],
-                      ),
-                    );
-
-                    if (result != null && result.isNotEmpty) {
-                      // You now have the phone number in `result`
-                      Get.to(
-                        CheckOutScreen(
-                          totalPrice: controller.totalPrice.value.toInt(),
-                          payFailure: () {
-                            Fluttertoast.showToast(
-                              msg: "Payment Failed",
-                              toastLength: Toast.LENGTH_SHORT,
-                              gravity: ToastGravity.BOTTOM,
-                              fontSize: 16.0,
-                            );
-                          },
-                          paySuccess: (tid) async {
-                            final orderPlaced = await controller.placeOrder(phone: result,method: tid
-                            );
-                            if(orderPlaced){
-                              if(orderPlaced){
-                                for(var m in controller.cart){
-                                  controller.removeFromCart(m);
+                          actions: [
+                            TextButton(
+                              onPressed: () => Get.back(), // Cancel
+                              child: Text("Cancel"),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                final phone = controller.contact.text.trim();
+                                if (phone.isNotEmpty) {
+                                  Get.back(result: phone); // Return phone number
                                 }
-                                Get.off(SucessScreen());
-                              }
-                            }else{
+                              },
+                              child: Text("Continue"),
+                            ),
+                          ],
+                        ),
+                      );
+
+                      if (result != null && result.isNotEmpty) {
+                        // You now have the phone number in `result`
+                        Get.to(
+                          CheckOutScreen(
+                            totalPrice: controller.totalPrice.value.toInt(),
+                            payFailure: () {
                               Fluttertoast.showToast(
-                                msg: "Failed to place order",
+                                msg: "Payment Failed",
                                 toastLength: Toast.LENGTH_SHORT,
                                 gravity: ToastGravity.BOTTOM,
                                 fontSize: 16.0,
                               );
-                            }
+                            },
+                            paySuccess: (tid) async {
+                              final orderPlaced = await controller.placeOrder(phone: result,method: tid
+                              );
+                              if(orderPlaced){
+                                if(orderPlaced){
+                                  for(var m in controller.cart){
+                                    controller.removeFromCart(m);
+                                  }
+                                  Get.off(SucessScreen());
+                                }
+                              }else{
+                                Fluttertoast.showToast(
+                                  msg: "Failed to place order",
+                                  toastLength: Toast.LENGTH_SHORT,
+                                  gravity: ToastGravity.BOTTOM,
+                                  fontSize: 16.0,
+                                );
+                              }
 
 
-                          },
-                        ),
-                      );
+                            },
+                          ),
+                        );
+                      }
                     }
                   },
                 ),

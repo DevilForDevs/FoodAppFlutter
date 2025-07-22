@@ -21,6 +21,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../../../../../comman/log_out_dialog.dart';
 import '../../commans/database.dart';
 
 class FoodScreenController extends GetxController {
@@ -30,6 +31,7 @@ class FoodScreenController extends GetxController {
   Future<void> onInit() async {
     super.onInit();
     credentialController=Get.put(CredentialController());
+
     final itemsLoaded=await loadItems();
     final prefs = await SharedPreferences.getInstance();
     final isQrLogin = prefs.getBool('is_qr_login') ?? false;
@@ -66,11 +68,20 @@ class FoodScreenController extends GetxController {
         TextButton(
           onPressed: () async {
             final prefs = await SharedPreferences.getInstance();
-            prefs.remove("pending_order");
-            prefs.remove("credentials");
-            prefs.remove("is_qr_login");
-            final deleted=deleteDatabaseFiles();
-            Get.offAll(HomeScreen());
+            showLoadingDialog(Get.context!);
+            final deliveredResponse=await markOrderDelivered(order["order_id"], credentialController.token.value);
+            if(deliveredResponse.contains("delivered")){
+              prefs.remove("pending_order");
+              prefs.remove("credentials");
+              prefs.remove("is_qr_login");
+
+              final deleted=deleteDatabaseFiles();
+              Get.back();
+              Get.offAll(HomeScreen());
+            }else{
+              Get.back();
+              print(deliveredResponse);
+            }
 
           },
           child: const Text("हाँ"), // Yes
@@ -127,18 +138,25 @@ class FoodScreenController extends GetxController {
         final result = await getAllItems(decodedJson["token"]);
         if (result is List) {
           for (var item in result) {
-            final isFavourite = await CartDatabase.isFavourite(item["id"]);
-            final mProduct = ProductModel(
-              name: item["name"],
-              thumbnail: item["image_url"],
-              price: item["price"],
-              isFavourite: isFavourite,
-              about: item["description"],
-              unit: item["unit"],
-              item_id: item["id"],
-            );
-            products.add(mProduct);
+            // Check if item with same id already exists in the list
+            final exists = products.any((product) => product.item_id == item["id"]);
+
+            if (!exists) {
+              final isFavourite = await CartDatabase.isFavourite(item["id"]);
+              final mProduct = ProductModel(
+                name: item["name"],
+                thumbnail: item["image_url"],
+                price: item["price"],
+                isFavourite: isFavourite,
+                about: item["description"],
+                unit: item["unit"],
+                item_id: item["id"],
+              );
+
+              products.add(mProduct);
+            }
           }
+
 
         } else if (result is Map && result.containsKey('error_message')) {
           print("Error: ${result['error_message']}");

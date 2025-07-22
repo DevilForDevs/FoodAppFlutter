@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:jalebi_shop_flutter/comman/sys_utilities.dart';
+import 'package:jalebi_shop_flutter/layout/native/mobile/screens/chat_screen/widgets/incoming_message.dart';
+import 'package:jalebi_shop_flutter/layout/native/mobile/screens/chat_screen/widgets/out_going_message.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/commans/custom_app_bar.dart';
+import 'package:jalebi_shop_flutter/layout/native/mobile/screens/credentials_controller.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 import 'chat_controller.dart'; // make sure the path is correct
 
@@ -12,6 +16,7 @@ class ChatScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final ChatController controller = Get.put(ChatController());
     final isDark=isDarkMode(context);
+    final credentialController=Get.find<CredentialController>();
     return SafeArea(
       child: PopScope(
         canPop: true,
@@ -46,8 +51,6 @@ class ChatScreen extends StatelessWidget {
                         return VisibilityDetector(
                           onVisibilityChanged: (visibilityInfo) {
                             final visiblePercentage = visibilityInfo.visibleFraction * 100;
-                            print("visible item");
-                            print(index);
                             if (visiblePercentage >= 95.0) {
                               if(controller.messages[index].isUser){
                                 //not applicable
@@ -65,7 +68,7 @@ class ChatScreen extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               msg.isUser
-                                  ? OutGoingMessage(message: msg.text,ts:msg.text,seen: msg.isSeen,)
+                                  ? OutGoingMessage(message: msg.text,ts:msg.timestamp,seen: msg.isSeen,)
                                   : IncomingMessage(message: msg.text),
                               if (index != 0) const SizedBox(height: 16),
                             ],
@@ -110,7 +113,16 @@ class ChatScreen extends StatelessWidget {
                             child: const Icon(Icons.send, color: Color(0xFFFF7622)),
                           ),
                           onPressed: () {
-                            controller.sendMessage();
+                            if(credentialController.isQrSignIN.value){
+                              Fluttertoast.showToast(
+                                msg: "Chat feature unavailable, use call ",
+                                toastLength: Toast.LENGTH_SHORT,
+                                gravity: ToastGravity.CENTER,
+                              );
+                            }else{
+                              controller.sendMessage();
+                            }
+
                           },
                         ),
                       ),
@@ -127,124 +139,6 @@ class ChatScreen extends StatelessWidget {
  
 }
 
-class IncomingMessage extends StatelessWidget {
-  const IncomingMessage({
-    super.key,
-    required this.message,
-  });
-  final String message;
 
 
-  @override
-  Widget build(BuildContext context) {
 
-    final isDark=isDarkMode(context);
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-        Container(
-          width: 40,
-          height: 40,
-          margin: const EdgeInsets.only(top: 20),
-          child: ClipOval(
-            child: Image.asset(
-              "assets/person.png",
-              fit: BoxFit.cover,
-            ),
-          ),
-        ),
-        const SizedBox(width: 8),
-        ConstrainedBox(
-          constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.7),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.end, // ← date aligns left
-            children: [
-              // Date text (now left aligned)
-              Text(
-                "July 1, 2025",
-                style:  TextStyle(fontSize: 12, color: isDark?Colors.white:Color(0xFF1A1817)),
-              ),
-              const SizedBox(height: 4),
-
-              // Chat bubble
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                decoration: BoxDecoration(
-                  color:isDark?Color(0xFF212121):Color(0xFFF0F5FA),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Text(
-                  message,
-                  style: TextStyle(fontSize: 14, color: isDark?Colors.white:Colors.black),
-                ),
-              ),
-            ],
-          ),
-        ),
-
-      ],
-    );
-  }
-}
-
-
-class OutGoingMessage extends StatelessWidget {
-  const OutGoingMessage({super.key, required this.message, required this.ts, required this.seen});
-  final String message;
-  final String ts;
-  final int seen;
-  @override
-  Widget build(BuildContext context) {
-    final isDark=isDarkMode(context);
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(top: 20,right: 10),
-          child:  seen==0?Icon(Icons.check,color: Colors.grey,size: 16,):Icon(Icons.done_all, size: 16, color:seen==2?Color(0xFFFF7622):Colors.grey),
-        ),
-        ConstrainedBox(
-          constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.7),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start, // ← date aligns left
-            children: [
-              // Date text (now left aligned)
-              Text(
-                "12 july",
-                style: TextStyle(fontSize: 12, color: isDark?Colors.white:Color(0xFF1A1817)),
-              ),
-              const SizedBox(height: 4),
-
-              // Chat bubble
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFF7622),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Text(
-                  message,
-                  style: TextStyle(fontSize: 14, color: Colors.white),
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(width: 8),
-        // Avatar
-        Container(
-          width: 40,
-          height: 40,
-          margin: const EdgeInsets.only(top: 20),
-          child: ClipOval(
-            child: Image.asset(
-              "assets/person.png",
-              fit: BoxFit.cover,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-}

@@ -580,7 +580,7 @@ Future<String> qrLogin(int userId,String name) async {
     final response = await http.post(
       url,
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
       body: json.encode({
         "userId":userId,
@@ -596,6 +596,29 @@ Future<String> qrLogin(int userId,String name) async {
   }
 }
 
+
+Future<String> markOrderDelivered(int orderId,String authToken) async {
+  final url = Uri.parse('$domain/api/markOrderDelivered');
+
+  try {
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $authToken',
+      },
+      body: json.encode({
+        "order_id":orderId,
+      }),
+    );
+    return response.body;
+
+  } catch (e) {
+    return jsonEncode({
+      "error message": e.toString(),
+    });
+  }
+}
 
 
 

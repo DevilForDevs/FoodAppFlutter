@@ -5,7 +5,7 @@ import 'package:jalebi_shop_flutter/layout/native/mobile/screens/commans/custom_
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/commans/custom_button.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/orders_screen/orders_screen.dart';
 
-import '../banner_ad_widget.dart'; // ✅ Make sure this import exists
+import '../banner_ad_widget.dart';
 
 class SucessScreen extends StatelessWidget {
   const SucessScreen({super.key});
@@ -13,6 +13,7 @@ class SucessScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = isDarkMode(context);
+
 
     return SafeArea(
       child: Scaffold(
@@ -41,7 +42,7 @@ class SucessScreen extends StatelessWidget {
                 ),
               ),
               const Text(
-                "You successfully maked a payment,\n enjoy our service! 👍",
+                "You successfully made a payment,\n enjoy our service! 👍",
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: Color(0xFFB0A9A2),
@@ -53,7 +54,10 @@ class SucessScreen extends StatelessWidget {
               CustomActionButton(
                 label: "Go To Orders",
                 backgroundColor: Color(0xFFFF7622),
-                onPressed: () => Get.to(OrdersScreen()),
+                onPressed: (){
+                  Get.to(OrdersScreen());
+
+                }
               ),
             ],
           ),

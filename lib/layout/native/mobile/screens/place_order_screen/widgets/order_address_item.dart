@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:jalebi_shop_flutter/comman/sys_utilities.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/address_screen/address_screen.dart';
@@ -16,6 +17,7 @@ class ProductDetailAddressItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark=isDarkMode(context);
     final addressItem=controller.addresses[index];
+    final isQrSignIN=controller.isQrSignIN.value;
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 8),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -49,7 +51,19 @@ class ProductDetailAddressItem extends StatelessWidget {
                   ),
                   IconButton(
                     icon: const Icon(Icons.edit, color: Color(0xFFFF7622)),
-                    onPressed: ()=>Get.to(AddressScreen(addressIndex: index)),
+                    onPressed: (){
+
+                      if(isQrSignIN){
+                        Fluttertoast.showToast(
+                          msg: "Not required",
+                          toastLength: Toast.LENGTH_SHORT,
+                          gravity: ToastGravity.BOTTOM,
+                          fontSize: 16.0,
+                        );
+                      }else{
+                        Get.to(AddressScreen(addressIndex: index));
+                      }
+                    },
                   ),
                 ],
               ),

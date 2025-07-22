@@ -5,6 +5,8 @@ import 'package:jalebi_shop_flutter/layout/native/mobile/screens/orders_screen/o
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/orders_screen/widgets/on_going_order_item.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/orders_screen/widgets/order_history_item.dart';
 
+import '../credentials_controller.dart';
+
 class OrdersScreen extends StatelessWidget {
   const OrdersScreen({super.key});
 
@@ -60,10 +62,8 @@ class OrdersScreen extends StatelessWidget {
                         itemCount:controller.orders.length,
                         itemBuilder: (context,index){
                           final orderItem=controller.orders[index];
-                          if(orderItem.status!="confirmed"){
-                            return OrderHistoryItem(orderItem: orderItem,index: index,);
-                          }
-                          return null;
+                          return OrderHistoryItem(orderItem: orderItem,index: index,);
+
                         }
                     ),
                     ),

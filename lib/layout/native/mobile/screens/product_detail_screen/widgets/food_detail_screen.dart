@@ -191,31 +191,41 @@ class FoodDetailScreen extends StatelessWidget {
                 child: CustomActionButton(
                   label: "Add to cart",
                   onPressed: () async {
-                    final msg=CartDatabase.insertOrUpdateCartItem(id: food.item_id, name: food.name, image: food.thumbnail, price: food.price.toDouble(), quantity: controller.quantity.value);
-                    Fluttertoast.showToast(
-                      msg: "Item Added to cart",
-                      toastLength: Toast.LENGTH_SHORT,
-                      gravity: ToastGravity.BOTTOM,
-                      fontSize: 16.0,
-                    );
-                    credentialController.cartSize.value++;
-
-                    // Show dialog asking if user wants to go to cart
-                    Future.delayed(Duration(milliseconds: 200), () {
-                      Get.defaultDialog(
-                        title: "Go to Cart?",
-                        middleText: "Would you like to view your cart now?",
-                        textCancel: "No",
-                        textConfirm: "Yes",
-                        onConfirm: () {
-                          Get.back(); // Close dialog
-                          Get.to(CartScreen());
-                        },
-                        onCancel: () {
-
-                        },
+                    if(credentialController.isQrSignIN.value){
+                      Fluttertoast.showToast(
+                        msg: "Account not support cart feature",
+                        toastLength: Toast.LENGTH_SHORT,
+                        gravity: ToastGravity.BOTTOM,
+                        fontSize: 16.0,
                       );
-                    });
+                    }else{
+                      final msg=CartDatabase.insertOrUpdateCartItem(id: food.item_id, name: food.name, image: food.thumbnail, price: food.price.toDouble(), quantity: controller.quantity.value);
+                      Fluttertoast.showToast(
+                        msg: "Item Added to cart",
+                        toastLength: Toast.LENGTH_SHORT,
+                        gravity: ToastGravity.BOTTOM,
+                        fontSize: 16.0,
+                      );
+                      credentialController.cartSize.value++;
+
+                      // Show dialog asking if user wants to go to cart
+                      Future.delayed(Duration(milliseconds: 200), () {
+                        Get.defaultDialog(
+                          title: "Go to Cart?",
+                          middleText: "Would you like to view your cart now?",
+                          textCancel: "No",
+                          textConfirm: "Yes",
+                          onConfirm: () {
+                            Get.back(); // Close dialog
+                            Get.to(CartScreen());
+                          },
+                          onCancel: () {
+                            Get.back();
+
+                          },
+                        );
+                      });
+                    }
                   }
                   ,
                   backgroundColor: Color(0xFFFF7622),

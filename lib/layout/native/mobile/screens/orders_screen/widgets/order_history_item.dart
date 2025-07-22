@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:jalebi_shop_flutter/comman/sys_utilities.dart';
-
+import 'package:get/get.dart';
+import 'package:jalebi_shop_flutter/layout/native/mobile/screens/product_detail_screen/widgets/food_detail_screen.dart';
+import 'package:jalebi_shop_flutter/layout/native/mobile/screens/product_model.dart';
+import 'package:jalebi_shop_flutter/layout/native/mobile/screens/search_screen/search_screen.dart';
 import '../../home_screen/controllers/order_model.dart';
 class OrderHistoryItem extends StatelessWidget {
   const OrderHistoryItem({
@@ -18,11 +21,11 @@ class OrderHistoryItem extends StatelessWidget {
     final isDark=isDarkMode(context);
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 12),
-
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if(index==0)SizedBox(height: 12,),
+          if(orderItem.status!="confirmed")
           Row(
             children: [
               Text(
@@ -46,12 +49,16 @@ class OrderHistoryItem extends StatelessWidget {
               ),
             ],
           ),
+          if(orderItem.status!="confirmed")
           SizedBox(height: 12,),
+          if(orderItem.status!="confirmed")
           Container(
             height: 1,
             color: Color(0xFFEEF2F6),
           ),
+          if(orderItem.status!="confirmed")
           SizedBox(height: 13,),
+          if(orderItem.status!="confirmed")
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -152,7 +159,9 @@ class OrderHistoryItem extends StatelessWidget {
               ),
             ],
           ),
+          if(orderItem.status!="confirmed")
           SizedBox(height: 12,),
+          if(orderItem.status!="confirmed")
           Row(
             textDirection: TextDirection.rtl,
             children: [
@@ -161,7 +170,7 @@ class OrderHistoryItem extends StatelessWidget {
                 height: 35, // Adjust height as per your design
                 child: ElevatedButton(
                   onPressed: () {
-                    // Your action here
+                    Get.to(SearchScreen());
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Color(0xFFFF7622), // FF7622
@@ -185,7 +194,21 @@ class OrderHistoryItem extends StatelessWidget {
               SizedBox(
                 width: 120,
                 height: 35,
-                child: ElevatedButton(
+
+              )
+
+
+            ],
+          ),
+          if(orderItem.status!="confirmed")
+          SizedBox(height: 12,),
+        ],
+      ),
+    );
+  }
+}
+
+/*ElevatedButton(
                   onPressed: () {
                     // Your action here
                   },
@@ -207,15 +230,4 @@ class OrderHistoryItem extends StatelessWidget {
                       // No need to set color here as it's handled by `foregroundColor`
                     ),
                   ),
-                ),
-              )
-
-
-            ],
-          ),
-          SizedBox(height: 12,),
-        ],
-      ),
-    );
-  }
-}
+                )*/

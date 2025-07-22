@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
+import 'package:jalebi_shop_flutter/comman/log_out_dialog.dart';
 import 'package:jalebi_shop_flutter/comman/networkings.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -32,6 +33,7 @@ class SearchScreenController extends GetxController {
   }
 
   Future<void> _onQueryChanged() async {
+    showLoadingDialog(Get.context!);
     final currentQuery = queryController.text.trim();
     queryText.value = currentQuery;
 
@@ -44,6 +46,7 @@ class SearchScreenController extends GetxController {
 
     try {
       final response = await searchItems(token.value,currentQuery);
+      Get.back();
       final items=response as List;
       for (var item in items) {
         final id = item["id"];
@@ -62,6 +65,7 @@ class SearchScreenController extends GetxController {
         }
       }
     } catch (e) {
+      Get.back();
       print('Search error: $e');
     } finally {
       isSearching.value = false;
