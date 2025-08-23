@@ -9,7 +9,7 @@ import 'package:mime/mime.dart';
 
 
 // Shared domain variable
-const String domain = 'https://jalebi.shop';
+const String domain = 'https://yourdomain.com';
 
 /// Sends a login POST request and returns the raw JSON string response (or null on failure)
 Future<String> login(String email, String password) async {
@@ -44,7 +44,7 @@ Future<String> signup({
   required String password,
   required String accountType,
 }) async {
-  final url = Uri.parse('https://jalebi.shop/api/signup'); // Replace with your actual API URL
+  final url = Uri.parse('https://yourdomain.com'); // Replace with your actual API URL
 
   try {
     final response = await http.post(
