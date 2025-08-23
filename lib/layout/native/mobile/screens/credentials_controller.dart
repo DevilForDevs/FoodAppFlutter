@@ -1,10 +1,13 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:audioplayers/audioplayers.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:firebase_app_installations/firebase_app_installations.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
+import 'package:jalebi_shop_flutter/layout/native/mobile/mobile_screen.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/commans/database.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/place_order_screen/address_db.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/product_model.dart';
@@ -102,29 +105,8 @@ class CredentialController extends GetxController {
       } else {
         pickedImage.value = File(avatarPathOrUrl);
       }
-      final addressList = await AddressDbHelper.getAllAddresses();
-      if (addressList.isEmpty) {
-        final addressJson = await getAddress(userId, token.value);
-        final addressList = addressJson["addresses"] as List;
-        for (var address in addressList) {
-          AddressDbHelper.insertAddress(Address.fromMap(address));
-          addresses.add(Address.fromMap(address));
-        }
-        if (addressList.isNotEmpty) {
-          final lastAddress = addressList.last;
-          longAddress.value = lastAddress["longAddress"];
-          village.value = lastAddress["street"];
-          selectedAddressIndex.value = addressList.length - 1;
-        }
-      } else {
-        for (Address adr in addressList) {
-          addresses.add(adr);
-        }
-        final lastAddress = addresses.last;
-        longAddress.value = lastAddress.longAddress;
-        village.value = lastAddress.street;
-        selectedAddressIndex.value = addressList.length - 1;
-      }
+      fetchAddress();
+
     }
     final cartItems = await CartDatabase.getCartItems();
     cartSize.value = cartItems.length;
@@ -133,11 +115,37 @@ class CredentialController extends GetxController {
   void changeSelectedIndex(int index) {
     selectedAddressIndex.value = index;
   }
+  Future<void> fetchAddress() async {
+    final addressList = await AddressDbHelper.getAllAddresses();
+    if (addressList.isEmpty) {
+      final addressJson = await getAddress(userId, token.value);
+      final addressList = addressJson["addresses"] as List;
+      for (var address in addressList) {
+        AddressDbHelper.insertAddress(Address.fromMap(address));
+        addresses.add(Address.fromMap(address));
+      }
+      if (addressList.isNotEmpty) {
+        final lastAddress = addressList.last;
+        longAddress.value = lastAddress["longAddress"];
+        village.value = lastAddress["street"];
+        selectedAddressIndex.value = addressList.length - 1;
+      }
+    } else {
+      for (Address adr in addressList) {
+        addresses.add(adr);
+      }
+      final lastAddress = addresses.last;
+      longAddress.value = lastAddress.longAddress;
+      village.value = lastAddress.street;
+      selectedAddressIndex.value = addressList.length - 1;
+    }
+  }
 
   Future<String> placeOrder(
     ProductModel product,
     int quantity,
     String paymentMethod, String contactNumber,
+      int discountPrice
   ) async {
 
     final response = await addOrder(
@@ -147,13 +155,13 @@ class CredentialController extends GetxController {
       product.item_id.toString(),
       contactNumber,
       quantity,
-      product.price,
+      discountPrice,
       paymentMethod,
     );
     return response;
   }
 
-  Future<void> mplaceOrder(ProductModel food, int quantity) async {
+  Future<void> mplaceOrder(ProductModel food, int quantity,int dicontPrice) async {
     final prefs = await SharedPreferences.getInstance();
     if (prefs.containsKey("pending_order")) {
       Fluttertoast.showToast(
@@ -162,11 +170,13 @@ class CredentialController extends GetxController {
         gravity: ToastGravity.BOTTOM,
         fontSize: 16.0,
       );
+      SystemNavigator.pop();
     } else {
       if (isQrSignIN.value) {
+
         Get.to(
           CheckOutScreen(
-            totalPrice: food.price,
+            totalPrice: dicontPrice,
             payFailure: () {
               Fluttertoast.showToast(
                 msg: "Payment Failed",
@@ -179,8 +189,7 @@ class CredentialController extends GetxController {
               Get.back();
               showLoadingDialog(Get.context!);
               final phoneModel=await getFirebaseInstallationId();
-              final isOrderPlaced = await placeOrder(food, quantity, tId,phoneModel);
-              print(isOrderPlaced);
+              final isOrderPlaced = await placeOrder(food, quantity, tId,phoneModel,dicontPrice);
               if (isOrderPlaced.contains("successfully")) {
                 Get.back();
                 final responseJson=jsonDecode(isOrderPlaced);
@@ -190,7 +199,7 @@ class CredentialController extends GetxController {
                   "order_id":responseJson["order_id"]
                 });
                 prefs.setString("pending_order", mjson);
-
+                await playOrdersoud();
                 ///sound featured success screen
                 Get.off(() => SucessScreen());
               } else {
@@ -212,7 +221,7 @@ class CredentialController extends GetxController {
           if (mobileRegex.hasMatch(phone.text)) {
             Get.to(
               CheckOutScreen(
-                totalPrice: food.price,
+                totalPrice: dicontPrice,
                 payFailure: () {
                   Fluttertoast.showToast(
                     msg: "Payment Failed",
@@ -224,7 +233,7 @@ class CredentialController extends GetxController {
                 paySuccess: (tId) async {
                   Get.back();
                   showLoadingDialog(Get.context!);
-                  final isOrderPlaced = await placeOrder(food, quantity, tId,phone.text);
+                  final isOrderPlaced = await placeOrder(food, quantity, tId,phone.text,dicontPrice);
                   if (isOrderPlaced.contains("successfully")) {
                     Get.back();
                     Get.off(() => SucessScreen());
@@ -263,4 +272,10 @@ class CredentialController extends GetxController {
     final id = await FirebaseInstallations.instance.getId();
     return id;
   }
+}
+
+Future<void> playOrdersoud() async {
+  final player = AudioPlayer();
+  print("playhg so8und");
+  await player.play(AssetSource('ordermilgyahai.mp3'));
 }

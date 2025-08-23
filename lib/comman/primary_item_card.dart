@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:jalebi_shop_flutter/comman/sys_utilities.dart';
+import 'package:jalebi_shop_flutter/layout/native/mobile/screens/ads_controller.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/commans/database.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/product_model.dart';
 
@@ -17,9 +19,10 @@ class PrimaryItemCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = isDarkMode(context);
-
     return GestureDetector(
-      onTap: () => Get.to(FoodDetailScreen(food: productModel,)),
+      onTap: (){
+        Get.to(FoodDetailScreen(food: productModel,));
+      },
       child: SizedBox(
         height: 50, // increased height to prevent overflow
         width: 50,

@@ -25,6 +25,8 @@ class OrderScreenController extends GetxController {
     final itoken=await credentialController.getFirebaseInstallationId();
     if (ordersFromApi is List) {
       for (var order in ordersFromApi) {
+        print("itkk");
+        print(order);
         if(credentialController.isQrSignIN.value){
           if(itoken==order["phone"]){
             final timestamp = order["created_at"].toString(); // e.g., "2025-07-21 10:08:36"

@@ -116,6 +116,7 @@ class FoodScreen extends StatelessWidget {
                   childAspectRatio: 0.8, // Adjust based on card height/width
                 ),
                 itemBuilder: (context, index) {
+
                   final product=controller.products[index];
                   return PrimaryItemCard(productModel: product);
                 },

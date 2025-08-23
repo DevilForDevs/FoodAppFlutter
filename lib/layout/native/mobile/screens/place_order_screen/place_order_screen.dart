@@ -3,20 +3,24 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
+import 'package:jalebi_shop_flutter/comman/log_out_dialog.dart';
 import 'package:jalebi_shop_flutter/comman/sys_utilities.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/address_screen/address_screen.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/commans/custom_button.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/credentials_controller.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/place_order_screen/widgets/order_address_item.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/product_model.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:path/path.dart';
+import 'package:sqflite/sqflite.dart';
 
 import '../commans/custom_app_bar.dart';
 
 class PlaceOrderScreen extends StatelessWidget {
-  const PlaceOrderScreen({super.key, required this.food, required this.quantity});
+  const PlaceOrderScreen({super.key, required this.food, required this.quantity, required this.discontPrice});
   final ProductModel food;
   final int quantity;
+  final int discontPrice;
+
 
   @override
   Widget build(BuildContext context) {
@@ -68,8 +72,8 @@ class PlaceOrderScreen extends StatelessWidget {
             SizedBox(height: 8),
 
             _rowText("Quantity :", quantity.toString()),
-            _rowText("Rate :", "₹${food.price}/${food.unit}"),
-            _rowText("Total Price :", "₹${quantity * food.price}"),
+            _rowText("Rate :", "₹$discontPrice/${food.unit}"),
+            _rowText("Total Price :", "₹${quantity *discontPrice}"),
 
             SizedBox(height: 8),
             _rowText("Contact :", ""),
@@ -129,9 +133,15 @@ class PlaceOrderScreen extends StatelessWidget {
         bottomNavigationBar: Padding(
           padding: EdgeInsets.symmetric(horizontal: 24,vertical: 24),
           child: CustomActionButton(label: "CheckOut", onPressed: () async {
-            print("qr accont");
-            print(controller.isQrSignIN.value);
             if(controller.addresses.isEmpty){
+              final dbPath = await getDatabasesPath();
+              final path = join(dbPath, 'address.db');
+
+              await deleteDatabase(path);
+              print('Database deleted: $path');
+              showLoadingDialog(context);
+              await controller.fetchAddress();
+              Get.back();
               Fluttertoast.showToast(
                 msg: "Address is required",
                 toastLength: Toast.LENGTH_SHORT,
@@ -139,7 +149,7 @@ class PlaceOrderScreen extends StatelessWidget {
                 fontSize: 16.0,
               );
             }else{
-              controller.mplaceOrder(food, quantity);
+              controller.mplaceOrder(food, quantity,discontPrice);
             }
           },backgroundColor: Color(0xFFFF7622)),
         ),

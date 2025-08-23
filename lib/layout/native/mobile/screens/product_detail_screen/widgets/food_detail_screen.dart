@@ -1,5 +1,6 @@
 
 
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
@@ -12,6 +13,7 @@ import 'package:jalebi_shop_flutter/layout/native/mobile/screens/commans/databas
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/credentials_controller.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/place_order_screen/place_order_screen.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/product_detail_screen/detail_screen_controller.dart';
+import 'package:jalebi_shop_flutter/layout/native/mobile/screens/product_detail_screen/widgets/ad_button.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/product_model.dart';
 
 import '../../ads_controller.dart';
@@ -173,65 +175,41 @@ class FoodDetailScreen extends StatelessWidget {
                   ),
                 ],
               ),
-              SizedBox(height: 16),
-              SizedBox(height: 16),
+              SizedBox(height: 46),
+              Center(
+                child: CustomActionButtonAd(
+                  label: "🎁 Watch Ad to Unlock 20% Discount",
+                  onPressed: () {
+                    Get.find<AdController>().showRewardedAd(
+                      onRewarded: () {
+                        Get.to(PlaceOrderScreen(food: food,quantity: controller.quantity.value,discontPrice: food.price-3,));
+                        /*adController.showInterstitialAd(onAdClosed: (){
+
+                        });*/
+                      },
+                    );
+                  },
+                  backgroundColor: Color(0xFFFFC107), // Yellow
+                  textColor: Colors.black,
+                  borderRadius: 16,
+                  elevation: 6,
+                  padding: EdgeInsets.symmetric(vertical: 14, horizontal: 24),
+                ),
+              ),
+              SizedBox(height: 24),
               Center(
                 child: CustomActionButton(
                   label: "Order Now",
                   onPressed:(){
-                    adController.showInterstitialAd(onAdClosed: (){
-                      Get.to(PlaceOrderScreen(food: food,quantity: controller.quantity.value,));
-                    });
+                    Get.to(PlaceOrderScreen(food: food,quantity: controller.quantity.value,discontPrice: food.price-0,));
+                   /* adController.showInterstitialAd(onAdClosed: (){
+                      Get.to(PlaceOrderScreen(food: food,quantity: controller.quantity.value,discontPrice: food.price-0,));
+                    });*/
                   },
                   backgroundColor: Color(0xFFFF7622),
                 ),
               ),
-              SizedBox(height: 16),
-              Center(
-                child: CustomActionButton(
-                  label: "Add to cart",
-                  onPressed: () async {
-                    if(credentialController.isQrSignIN.value){
-                      Fluttertoast.showToast(
-                        msg: "Account not support cart feature",
-                        toastLength: Toast.LENGTH_SHORT,
-                        gravity: ToastGravity.BOTTOM,
-                        fontSize: 16.0,
-                      );
-                    }else{
-                      final msg=CartDatabase.insertOrUpdateCartItem(id: food.item_id, name: food.name, image: food.thumbnail, price: food.price.toDouble(), quantity: controller.quantity.value);
-                      Fluttertoast.showToast(
-                        msg: "Item Added to cart",
-                        toastLength: Toast.LENGTH_SHORT,
-                        gravity: ToastGravity.BOTTOM,
-                        fontSize: 16.0,
-                      );
-                      credentialController.cartSize.value++;
-
-                      // Show dialog asking if user wants to go to cart
-                      Future.delayed(Duration(milliseconds: 200), () {
-                        Get.defaultDialog(
-                          title: "Go to Cart?",
-                          middleText: "Would you like to view your cart now?",
-                          textCancel: "No",
-                          textConfirm: "Yes",
-                          onConfirm: () {
-                            Get.back(); // Close dialog
-                            Get.to(CartScreen());
-                          },
-                          onCancel: () {
-                            Get.back();
-
-                          },
-                        );
-                      });
-                    }
-                  }
-                  ,
-                  backgroundColor: Color(0xFFFF7622),
-                ),
-              ),
-              SizedBox(height: 100,),
+              SizedBox(height: 40),
               Center(child: BannerAdWidget())
 
             ],

@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/home_screen/home_screen.dart';
+import 'package:jalebi_shop_flutter/layout/native/mobile/screens/on_boarding_screen/on_boarding_screen.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -37,11 +38,11 @@ void showLogoutDialog(BuildContext context) {
               prefs.remove("pending_order");
               prefs.remove("is_qr_login");
               final deleted=deleteDatabaseFiles();
-              Get.offAll(HomeScreen());
+              Get.offAll(OnBoardingScreen());
             } else {
               print('cart.db does not exist.');
             }
-            Get.to(HomeScreen());
+            Get.to(OnBoardingScreen());
           },
           child: Text('Log Out'),
         ),

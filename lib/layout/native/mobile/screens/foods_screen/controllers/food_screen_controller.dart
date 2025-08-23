@@ -4,13 +4,12 @@ import 'dart:convert';
 import 'dart:io';
 
 
-import 'package:firebase_app_installations/firebase_app_installations.dart';
-
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 
 import 'package:jalebi_shop_flutter/comman/networkings.dart';
+import 'package:jalebi_shop_flutter/layout/native/mobile/screens/ads_controller.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/credentials_controller.dart';
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/home_screen/home_screen.dart';
 
@@ -27,24 +26,13 @@ import '../../commans/database.dart';
 class FoodScreenController extends GetxController {
   final products = <ProductModel>[].obs;
   late CredentialController credentialController;
+
   @override
   Future<void> onInit() async {
     super.onInit();
     credentialController=Get.put(CredentialController());
 
     final itemsLoaded=await loadItems();
-    final prefs = await SharedPreferences.getInstance();
-    final isQrLogin = prefs.getBool('is_qr_login') ?? false;
-    if (isQrLogin) {
-      final pendingOrder = await _getPendingOrderData();
-      if (pendingOrder != null) {
-        Future.delayed(Duration.zero, () {
-          Get.dialog(_buildPendingOrderDialog(pendingOrder));
-        });
-      }
-    }
-
-
   }
   Widget _buildPendingOrderDialog(Map<String, dynamic> order) {
     return AlertDialog(
@@ -130,7 +118,19 @@ class FoodScreenController extends GetxController {
   }
   Future<void> loadItems() async {
 
+   //checking
     final prefs = await SharedPreferences.getInstance();
+    final isQrLogin = prefs.getBool('is_qr_login') ?? false;
+    if (isQrLogin) {
+      final pendingOrder = await _getPendingOrderData();
+      if (pendingOrder != null) {
+        Future.delayed(Duration.zero, () {
+          Get.dialog(_buildPendingOrderDialog(pendingOrder));
+        });
+      }
+    }
+
+    ///loading items
     final credentials = prefs.getString('credentials');
     if (credentials != null) {
       final decodedJson = jsonDecode(credentials);

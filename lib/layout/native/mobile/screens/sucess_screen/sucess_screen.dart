@@ -6,6 +6,7 @@ import 'package:jalebi_shop_flutter/layout/native/mobile/screens/commans/custom_
 import 'package:jalebi_shop_flutter/layout/native/mobile/screens/orders_screen/orders_screen.dart';
 
 import '../banner_ad_widget.dart';
+import '../credentials_controller.dart';
 
 class SucessScreen extends StatelessWidget {
   const SucessScreen({super.key});
@@ -13,8 +14,7 @@ class SucessScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = isDarkMode(context);
-
-
+    final controller=Get.find<CredentialController>();
     return SafeArea(
       child: Scaffold(
         appBar: CustomAppBar(
@@ -50,20 +50,50 @@ class SucessScreen extends StatelessWidget {
                   fontFamily: "Sen-Regular",
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 12),
               CustomActionButton(
                 label: "Go To Orders",
                 backgroundColor: Color(0xFFFF7622),
                 onPressed: (){
-                  Get.to(OrdersScreen());
+                  Get.offAll(OrdersScreen());
 
                 }
               ),
+              SizedBox(height: 24),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    width: 100,
+                    height: 100,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                    ),
+                    child: Obx(
+                          () => CircleAvatar(
+                        radius: 40,
+                        backgroundImage: controller.pickedImage.value != null
+                            ? FileImage(controller.pickedImage.value!) // Use the picked image if available
+                            : AssetImage('assets/person.png') as ImageProvider, // Use the default image if not
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 20,),
+                  Text(
+                    controller.name.value,
+                    style: TextStyle(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 20
+                    ),
+                  )
+                ],
+              )
             ],
           ),
         ),
         bottomNavigationBar: Padding(
-          padding: const EdgeInsets.only(bottom: 12), // Optional spacing
+          padding: const EdgeInsets.only(bottom: 16), // Optional spacing
           child: const BannerAdWidget(), // 👈 Shows banner safely
         ),
       ),

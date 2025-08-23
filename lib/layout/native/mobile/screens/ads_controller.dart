@@ -1,46 +1,56 @@
 import 'dart:ui';
-
 import 'package:get/get.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 class AdController extends GetxController {
-  InterstitialAd? _interstitialAd;
+  RewardedAd? rewardedAd;
 
-  void loadInterstitialAd() {
-    InterstitialAd.load(
-      adUnitId: 'ca-app-pub-1261818971959382/4002394920', // Replace with your real ID
-      request: const AdRequest(),
-      adLoadCallback: InterstitialAdLoadCallback(
-        onAdLoaded: (ad) => _interstitialAd = ad,
-        onAdFailedToLoad: (error) => _interstitialAd = null,
-      ),
-    );
+
+  // Load rewarded ad
+  void loadRewardedAd() {
+    if(rewardedAd==null){
+      print("loading mad");
+      RewardedAd.load(
+        adUnitId: 'ca-app-pub-1261818971959382/3869467323', // Your real rewarded ID
+        request: const AdRequest(),
+        rewardedAdLoadCallback: RewardedAdLoadCallback(
+          onAdLoaded: (ad) => rewardedAd = ad,
+          onAdFailedToLoad: (error) => rewardedAd = null,
+        ),
+      );
+    }
   }
 
-  void showInterstitialAd({VoidCallback? onAdClosed}) {
-    if (_interstitialAd != null) {
-      _interstitialAd!.fullScreenContentCallback = FullScreenContentCallback(
+  // Show rewarded ad
+  void showRewardedAd({required VoidCallback onRewarded, VoidCallback? onAdClosed}) {
+    if (rewardedAd != null) {
+      rewardedAd!.fullScreenContentCallback = FullScreenContentCallback(
         onAdDismissedFullScreenContent: (ad) {
           ad.dispose();
-          loadInterstitialAd(); // Reload for next time
-          if (onAdClosed != null) onAdClosed();
+          //loadRewardedAd(); // Reload
+          onAdClosed?.call();
         },
         onAdFailedToShowFullScreenContent: (ad, error) {
           ad.dispose();
-          loadInterstitialAd(); // Try again next time
+          // loadRewardedAd();
         },
       );
-      _interstitialAd!.show();
-      _interstitialAd = null;
+
+      rewardedAd!.show(
+        onUserEarnedReward: (AdWithoutView ad, RewardItem reward) {
+          onRewarded(); // Give reward to user
+        },
+      );
+      rewardedAd = null;
     } else {
-      loadInterstitialAd(); // Try loading if not ready
-      if (onAdClosed != null) onAdClosed();
+      onAdClosed?.call();
     }
   }
 
   @override
   void onInit() {
-    loadInterstitialAd();
+    loadRewardedAd();
     super.onInit();
   }
 }
+
