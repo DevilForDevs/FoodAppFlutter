@@ -11,7 +11,7 @@ class AdController extends GetxController {
     if(rewardedAd==null){
       print("loading mad");
       RewardedAd.load(
-        adUnitId: 'ca-app-pub-1261818971959382/3869467323', // Your real rewarded ID
+        adUnitId: 'ca-app-pub-your reward ad unit id', // Your real rewarded ID
         request: const AdRequest(),
         rewardedAdLoadCallback: RewardedAdLoadCallback(
           onAdLoaded: (ad) => rewardedAd = ad,
