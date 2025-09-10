@@ -1,4 +1,4 @@
-<h1 align="center">Compose YT Downloader For Android</h1>
+<h1 align="center">Flutter E-commerce App</h1>
 
 <p align="center">
   <img src="https://img.shields.io/badge/EcommerceApp-red?style=for-the-badge" alt="Search Badge">
@@ -11,7 +11,6 @@
   <img src="https://github.com/user-attachments/assets/95295e7a-1cb7-4549-a674-94f42c2425f9" alt="Screenshot 2" width="200" />
   <img src="https://github.com/user-attachments/assets/db684f43-f73d-4070-a24b-df568c42a62a" alt="Screenshot 3" width="200" />
   <img src="https://github.com/user-attachments/assets/65e2a0d0-bb81-4746-8b0a-f1d847aabe7e" alt="Screenshot 4" width="200" />
-  <img src="https://github.com/user-attachments/assets/a48ba9c4-5c92-4b56-81b7-288179d77e89" alt="Screenshot 5" width="200" />
 </p>
 ## 🎨 Design
 
